@@ -12,7 +12,9 @@ type Plan []definition.Target
 type ParseOptions = parse.Options
 
 type Options struct {
-	Sort bool
+	Sort        bool
+	CommandOnly bool
+	RuleOnly    bool
 }
 
 type DoOptions struct {
@@ -29,7 +31,13 @@ func Do(o DoOptions) ([]definition.Target, error) {
 	rules := d.Rules()
 	r := make([]definition.Target, 0, len(rules))
 	for _, rl := range rules {
-		r = append(r, rl.Target)
+		if o.RuleOnly && !rl.IsPhony {
+			r = append(r, rl.Target)
+		} else if o.CommandOnly && rl.IsPhony {
+			r = append(r, rl.Target)
+		} else if !o.RuleOnly && !o.CommandOnly {
+			r = append(r, rl.Target)
+		}
 	}
 
 	if o.Sort {
