@@ -13,6 +13,11 @@ opts {
   shell_flags = var.is_debug ? "-xuec" : "-uec"
 }
 
+env {
+  GOSUMDB = "off"
+  GOPROXY = "direct"
+}
+
 var {
   cmds = [for cmd in glob("cmd/*") : { path: cmd, bin: path("bin/", basename(cmd)) }]
   bins = [for cmd in var.cmds : cmd.bin]
@@ -25,11 +30,6 @@ dynamic rule {
   target = cmd.bin
   dependencies = var.go_deps
   command = "go build -o ${target} ./${cmd.path}"
-
-  environment = {
-    GOSUMDB = "off"
-    GOPROXY = "direct"
-  }
 }
 
 var {
@@ -58,8 +58,6 @@ dynamic rule {
   environment = {
     GOOS = cmd.env.goos
     GOARCH = cmd.env.goarch
-    GOSUMDB = "off"
-    GOPROXY = "direct"
   }
 }
 
