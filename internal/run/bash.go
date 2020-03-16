@@ -2,6 +2,7 @@ package run
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 )
@@ -69,7 +70,7 @@ func bash(cmd string, opts bashOpts) error {
 			return err
 		}
 		defer f.Close()
-		c.Stdout = f
+		c.Stdout = io.MultiWriter(f, os.Stdout)
 	} else {
 		c.Stdout = os.Stdout
 	}

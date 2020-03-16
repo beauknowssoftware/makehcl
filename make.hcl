@@ -4,7 +4,7 @@ var {
   is_debug = exists(env, "DEBUG")
   go_deps = concat(
     glob("**.go"),
-    ["go.mod", "go.sum", "test", "lint"]
+    ["go.mod", "go.sum"]
   )
 }
 
@@ -28,7 +28,7 @@ dynamic rule {
   as = "cmd"
 
   target = cmd.bin
-  dependencies = var.go_deps
+  dependencies = concat(var.go_deps, [".test", ".lint"])
   command = "go build -o ${target} ./${cmd.path}"
 }
 
@@ -52,7 +52,7 @@ dynamic rule {
   as = "cmd"
 
   target = cmd.bin
-  dependencies = var.go_deps
+  dependencies = concat(var.go_deps, [".test", ".lint"])
   command = "go build -o ${target} ./${cmd.path}"
 
   environment = {
@@ -61,10 +61,25 @@ dynamic rule {
   }
 }
 
-command lint { command = "golangci-lint run --fix" }
-command test {
-  dependencies = ["import"]
+rule {
+  target = ".test"
+  tee_target = true
+  dependencies = concat(var.go_deps, [".import"])
   command = "go test ./..."
 }
-command import { command = "goimports -w ." }
+
+rule {
+  target = ".lint"
+  tee_target = true
+  dependencies = var.go_deps
+  command = "golangci-lint run --fix"
+}
+
+rule {
+  target = ".import"
+  tee_target = true
+  dependencies = var.go_deps
+  command = "goimports -w ."
+}
+
 command clean { command = "git clean -f -fdX" }
