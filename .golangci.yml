@@ -29,3 +29,4 @@ linters-settings:
     min-complexity: 15
   govet:
     check-shadowing: true
+    enable-all: true
