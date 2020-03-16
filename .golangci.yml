@@ -5,3 +5,4 @@ linters:
     - whitespace
     - unparam
     - unconvert
+    - nakedret
