@@ -9,3 +9,4 @@ linters:
     - lll
     - interfacer
     - gosec
+    - gomnd
