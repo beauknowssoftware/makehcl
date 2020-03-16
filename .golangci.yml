@@ -3,3 +3,4 @@ linters:
     - wsl
     - prealloc
     - whitespace
+    - unparam
