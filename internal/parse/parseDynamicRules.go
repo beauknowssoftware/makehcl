@@ -11,11 +11,11 @@ import (
 var (
 	dynamicRuleListSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
-			hcl.AttributeSchema{
+			{
 				Name:     "for_each",
 				Required: true,
 			},
-			hcl.AttributeSchema{
+			{
 				Name:     "as",
 				Required: false,
 			},

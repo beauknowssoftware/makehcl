@@ -28,8 +28,8 @@ func Exists(args []cty.Value, _ cty.Type) (cty.Value, error) {
 
 var ExistsSpec = function.Spec{
 	Params: []function.Parameter{
-		function.Parameter{Type: cty.DynamicPseudoType},
-		function.Parameter{Type: cty.String},
+		{Type: cty.DynamicPseudoType},
+		{Type: cty.String},
 	},
 	Type: function.StaticReturnType(cty.Bool),
 	Impl: Exists,

@@ -16,15 +16,15 @@ const (
 var (
 	commandSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
-			hcl.AttributeSchema{
+			{
 				Name:     commandAttributeName,
 				Required: false,
 			},
-			hcl.AttributeSchema{
+			{
 				Name:     dependenciesAttributeName,
 				Required: false,
 			},
-			hcl.AttributeSchema{
+			{
 				Name:     environmentAttributeName,
 				Required: false,
 			},

@@ -11,19 +11,19 @@ import (
 var (
 	ruleSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
-			hcl.AttributeSchema{
+			{
 				Name:     "environment",
 				Required: false,
 			},
-			hcl.AttributeSchema{
+			{
 				Name:     "target",
 				Required: true,
 			},
-			hcl.AttributeSchema{
+			{
 				Name:     "command",
 				Required: true,
 			},
-			hcl.AttributeSchema{
+			{
 				Name:     "dependencies",
 				Required: false,
 			},

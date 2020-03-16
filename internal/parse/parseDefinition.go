@@ -18,29 +18,29 @@ const (
 var (
 	definitionSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
-			hcl.AttributeSchema{
+			{
 				Name:     "default_goal",
 				Required: false,
 			},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
-			hcl.BlockHeaderSchema{
+			{
 				Type: "opts",
 			},
-			hcl.BlockHeaderSchema{
+			{
 				Type: "env",
 			},
-			hcl.BlockHeaderSchema{
+			{
 				Type: "var",
 			},
-			hcl.BlockHeaderSchema{
+			{
 				Type:       commandBlockType,
 				LabelNames: []string{"name"},
 			},
-			hcl.BlockHeaderSchema{
+			{
 				Type: ruleBlockType,
 			},
-			hcl.BlockHeaderSchema{
+			{
 				Type:       dynamicBlockType,
 				LabelNames: []string{"type"},
 			},

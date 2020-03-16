@@ -10,7 +10,7 @@ import (
 
 var FilenameSpec = function.Spec{
 	Params: []function.Parameter{
-		function.Parameter{Type: cty.String},
+		{Type: cty.String},
 	},
 	Type: function.StaticReturnType(cty.String),
 	Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {

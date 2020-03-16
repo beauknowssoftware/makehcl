@@ -15,3 +15,5 @@ linters:
     - gochecknoinits
     - dupl
     - golint
+    - goimports
+    - gofmt

@@ -41,7 +41,7 @@ func Glob(args []cty.Value, _ cty.Type) (cty.Value, error) {
 
 var GlobSpec = function.Spec{
 	Params: []function.Parameter{
-		function.Parameter{Type: cty.String},
+		{Type: cty.String},
 	},
 	Type: function.StaticReturnType(cty.List(cty.String)),
 	Impl: Glob,
