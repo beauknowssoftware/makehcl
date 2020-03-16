@@ -58,8 +58,8 @@ func (s *globalSorter) visit(g global) {
 			continue
 		}
 
-		if g, hasGlobal := s.globals[gName]; hasGlobal {
-			s.visit(g)
+		if gl, hasGlobal := s.globals[gName]; hasGlobal {
+			s.visit(gl)
 		}
 	}
 
