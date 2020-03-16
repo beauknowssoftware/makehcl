@@ -22,15 +22,16 @@ type DoOptions struct {
 	Options
 }
 
-func visit(
-	o Options,
-	d definition.Definition,
-	t definition.Target,
-	p *Plan,
-	visited map[definition.Target]bool,
-	dt map[definition.Target]*time.Time,
-) error {
-	if visited[t] {
+type planVisitor struct {
+	o       Options
+	d       definition.Definition
+	p       Plan
+	visited map[definition.Target]bool
+	dt      map[definition.Target]*time.Time
+}
+
+func (v *planVisitor) visit(t definition.Target) error {
+	if v.visited[t] {
 		return nil
 	}
 
@@ -39,27 +40,27 @@ func visit(
 		return err
 	}
 
-	dt[t] = mt
+	v.dt[t] = mt
 
-	r := d.Rule(t)
+	r := v.d.Rule(t)
 	if r == nil && mt != nil {
 		return nil
 	}
 
-	shouldVisit := o.IgnoreLastModified || mt == nil // mt should only be null if file does not exist
+	shouldVisit := v.o.IgnoreLastModified || mt == nil // mt should only be null if file does not exist
 
 	for _, dep := range r.Dependencies {
-		err := visit(o, d, dep, p, visited, dt)
+		err := v.visit(dep)
 		if err != nil {
 			return err
 		}
 
-		shouldVisit = shouldVisit || visited[dep] || (mt != nil && dt[dep].After(*mt))
+		shouldVisit = shouldVisit || v.visited[dep] || (mt != nil && v.dt[dep].After(*mt))
 	}
 
 	if shouldVisit {
-		*p = append(*p, t)
-		visited[t] = true
+		v.p = append(v.p, t)
+		v.visited[t] = true
 	}
 
 	return nil
@@ -68,17 +69,19 @@ func visit(
 func Definition(d definition.Definition, o Options) (Plan, error) {
 	g := d.EffectiveGoal(o.Goal)
 
-	visited := make(map[definition.Target]bool)
-	dt := make(map[definition.Target]*time.Time)
-	p := Plan{}
+	var visitor planVisitor
+	visitor.visited = make(map[definition.Target]bool)
+	visitor.dt = make(map[definition.Target]*time.Time)
+	visitor.d = d
+	visitor.o = o
 
 	for _, t := range g {
-		if err := visit(o, d, t, &p, visited, dt); err != nil {
+		if err := visitor.visit(t); err != nil {
 			return nil, err
 		}
 	}
 
-	return p, nil
+	return visitor.p, nil
 }
 
 func Do(o DoOptions) (Plan, error) {

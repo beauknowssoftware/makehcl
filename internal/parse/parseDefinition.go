@@ -137,37 +137,61 @@ func fillDefaultGoal(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.Ev
 	return nil
 }
 
+func fillRuleFromRuleBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.EvalContext) error {
+	r, err := constructRule(blk, ctx)
+	if err != nil {
+		return err
+	}
+
+	d.AddRule(r)
+
+	return nil
+}
+
+func fillRulesFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.EvalContext) error {
+	switch blk.Labels[0] {
+	case "rule":
+		dy, err := constructDynamicRules(blk, ctx)
+		if err != nil {
+			return err
+		}
+
+		for _, dy := range dy {
+			d.AddRule(dy)
+		}
+
+		return nil
+	default:
+		return fmt.Errorf("unknown dynamic type %v", blk.Labels[0])
+	}
+}
+
+func fillRuleFromCommandBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.EvalContext) error {
+	c, err := constructCommand(blk, ctx)
+	if err != nil {
+		return err
+	}
+
+	d.AddCommand(c)
+
+	return nil
+}
+
 func fillRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
 	for _, blk := range con.Blocks {
 		switch blk.Type {
 		case ruleBlockType:
-			r, err := constructRule(blk, ctx)
-			if err != nil {
+			if err := fillRuleFromRuleBlock(blk, d, ctx); err != nil {
 				return err
 			}
-
-			d.AddRule(r)
 		case dynamicBlockType:
-			switch blk.Labels[0] {
-			case "rule":
-				dy, err := constructDynamicRules(blk, ctx)
-				if err != nil {
-					return err
-				}
-
-				for _, dy := range dy {
-					d.AddRule(dy)
-				}
-			default:
-				return fmt.Errorf("unknown dynamic type %v", blk.Labels[0])
+			if err := fillRulesFromDynamicBlock(blk, d, ctx); err != nil {
+				return err
 			}
 		case commandBlockType:
-			c, err := constructCommand(blk, ctx)
-			if err != nil {
+			if err := fillRuleFromCommandBlock(blk, d, ctx); err != nil {
 				return err
 			}
-
-			d.AddCommand(c)
 		}
 	}
 

@@ -3,7 +3,6 @@ linters:
     - dogsled
     - dupl
     - gochecknoinits
-    - gocognit
     - goconst
     - gocritic
     - gocyclo
@@ -26,3 +25,5 @@ linters-settings:
   errcheck:
     check-type-assertions: true
     check-blank: true
+  gocyclo:
+    min-complexity: 15
