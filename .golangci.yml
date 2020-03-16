@@ -30,3 +30,5 @@ linters-settings:
   govet:
     check-shadowing: true
     enable-all: true
+  wsl:
+    force-err-cuddling: true
