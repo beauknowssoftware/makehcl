@@ -77,7 +77,7 @@ func (s *globalSorter) sort() {
 	}
 }
 
-func fillGlobals(attrSets map[string]map[string]*hcl.Attribute, ctx *hcl.EvalContext) (map[string]string, error) {
+func getGlobals(attrSets map[string]map[string]*hcl.Attribute, ctx *hcl.EvalContext) (map[string]string, error) {
 	s := globalSorter{
 		globals: make(map[globalName]global),
 	}

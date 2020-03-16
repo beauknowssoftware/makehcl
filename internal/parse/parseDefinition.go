@@ -67,37 +67,34 @@ func getAllAttributes(blockType string, con *hcl.BodyContent) (map[string]*hcl.A
 	return attrs, nil
 }
 
-func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definition, error) {
-	con, diag := f.Body.Content(&definitionSchema)
-	if diag.HasErrors() {
-		return nil, diag
-	}
-
-	var d definition.Definition
-
+func fillGlobals(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
 	varAttrs, err := getAllAttributes("var", con)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	envAttrs, err := getAllAttributes("env", con)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	envs, err := fillGlobals(map[string]map[string]*hcl.Attribute{
+	envs, err := getGlobals(map[string]map[string]*hcl.Attribute{
 		"var": varAttrs,
 		"env": envAttrs,
 	}, ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	d.GlobalEnvironment = envs
 
+	return nil
+}
+
+func fillOpts(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
 	optsAttrs, err := getAllAttributes("opts", con)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for name, attr := range optsAttrs {
@@ -106,7 +103,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 			v, err := evaluateString(attr.Expr, ctx)
 			if err != nil {
 				err = errors.Wrap(err, "failed to evaluate shell opt")
-				return nil, err
+				return err
 			}
 
 			d.Shell = v
@@ -114,31 +111,39 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 			v, err := evaluateString(attr.Expr, ctx)
 			if err != nil {
 				err = errors.Wrap(err, "failed to evaluate shell_flag opt")
-				return nil, err
+				return err
 			}
 
 			d.ShellFlags = &v
 		}
 	}
 
+	return nil
+}
+
+func fillDefaultGoal(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
 	for name, attr := range con.Attributes {
 		if name == "default_goal" {
 			defaultGoal, err := evaluateStringArray(attr.Expr, ctx)
 			if err != nil {
 				err = errors.Wrap(err, "failed to evaluate default_goal")
-				return nil, err
+				return err
 			}
 
 			d.SetDefaultGoal(defaultGoal)
 		}
 	}
 
+	return nil
+}
+
+func fillRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
 	for _, blk := range con.Blocks {
 		switch blk.Type {
 		case ruleBlockType:
 			r, err := constructRule(blk, ctx)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			d.AddRule(r)
@@ -147,23 +152,50 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 			case "rule":
 				dy, err := constructDynamicRules(blk, ctx)
 				if err != nil {
-					return nil, err
+					return err
 				}
 
 				for _, dy := range dy {
 					d.AddRule(dy)
 				}
 			default:
-				return nil, fmt.Errorf("unknown dynamic type %v", blk.Labels[0])
+				return fmt.Errorf("unknown dynamic type %v", blk.Labels[0])
 			}
 		case commandBlockType:
 			c, err := constructCommand(blk, ctx)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			d.AddCommand(c)
 		}
+	}
+
+	return nil
+}
+
+func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definition, error) {
+	con, diag := f.Body.Content(&definitionSchema)
+	if diag.HasErrors() {
+		return nil, diag
+	}
+
+	var d definition.Definition
+
+	if err := fillGlobals(con, &d, ctx); err != nil {
+		return nil, err
+	}
+
+	if err := fillOpts(con, &d, ctx); err != nil {
+		return nil, err
+	}
+
+	if err := fillDefaultGoal(con, &d, ctx); err != nil {
+		return nil, err
+	}
+
+	if err := fillRules(con, &d, ctx); err != nil {
+		return nil, err
 	}
 
 	return &d, nil
