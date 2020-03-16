@@ -10,6 +10,7 @@ func Exec() error {
 		"Plan execution",
 		"The plan command plans execution",
 		&plan)
+
 	if err != nil {
 		return err
 	}
@@ -19,6 +20,7 @@ func Exec() error {
 		"Execute",
 		"The run command executes",
 		&run)
+
 	if err != nil {
 		return err
 	}
@@ -28,10 +30,12 @@ func Exec() error {
 		"Display list of targets",
 		"The targets command displays a list or executable targets",
 		&targets)
+
 	if err != nil {
 		return err
 	}
 
 	_, err = p.Parse()
+
 	return err
 }

@@ -25,9 +25,11 @@ func evaluateStringMap(expr hcl.Expression, ctx *hcl.EvalContext) (map[string]st
 
 	m := val.AsValueMap()
 	result := make(map[string]string, len(m))
+
 	for k, v := range m {
 		result[k] = v.AsString()
 	}
+
 	return result, nil
 }
 
@@ -43,6 +45,7 @@ func evaluateStringArray(expr hcl.Expression, ctx *hcl.EvalContext) ([]string, e
 		if ets == nil {
 			return nil, fmt.Errorf("expected tuple of string, got %v", t.FriendlyName())
 		}
+
 		for i, et := range ets {
 			if et != cty.String {
 				return nil, fmt.Errorf("expected list of string, but element %v was %v", i, et.FriendlyName())
@@ -51,9 +54,11 @@ func evaluateStringArray(expr hcl.Expression, ctx *hcl.EvalContext) ([]string, e
 
 		sl := val.AsValueSlice()
 		result := make([]string, 0, len(sl))
+
 		for _, e := range sl {
 			result = append(result, e.AsString())
 		}
+
 		return result, nil
 	}
 
@@ -65,9 +70,11 @@ func evaluateStringArray(expr hcl.Expression, ctx *hcl.EvalContext) ([]string, e
 
 	sl := val.AsValueSlice()
 	result := make([]string, 0, len(sl))
+
 	for _, e := range sl {
 		result = append(result, e.AsString())
 	}
+
 	return result, nil
 }
 
@@ -85,6 +92,7 @@ func evaluateValueArray(expr hcl.Expression, ctx *hcl.EvalContext) ([]cty.Value,
 	if !t.IsListType() {
 		return nil, fmt.Errorf("expected list, got %v", t.FriendlyName())
 	}
+
 	return val.AsValueSlice(), nil
 }
 

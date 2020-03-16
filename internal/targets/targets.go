@@ -30,6 +30,7 @@ func Do(o DoOptions) ([]definition.Target, error) {
 
 	rules := d.Rules()
 	r := make([]definition.Target, 0, len(rules))
+
 	for _, rl := range rules {
 		if o.RuleOnly && !rl.IsPhony {
 			r = append(r, rl.Target)

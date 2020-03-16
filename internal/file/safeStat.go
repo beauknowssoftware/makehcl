@@ -14,6 +14,7 @@ func SafeStat(filename string) (os.FileInfo, bool, error) {
 	} else if err != nil {
 		return s, true, err
 	}
+
 	return s, true, nil
 }
 
@@ -22,6 +23,7 @@ func Exists(filename string) (bool, error) {
 	if err != nil {
 		return false, errors.Wrapf(err, "error stating file %v", filename)
 	}
+
 	return exists, nil
 }
 
@@ -34,5 +36,6 @@ func ModTime(filename string) (*time.Time, error) {
 	}
 
 	t := s.ModTime()
+
 	return &t, nil
 }

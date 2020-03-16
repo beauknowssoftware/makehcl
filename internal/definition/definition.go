@@ -28,7 +28,9 @@ func (d *Definition) AddRule(r *Rule) {
 	if d.rules == nil {
 		d.rules = make(map[Target]*Rule)
 	}
+
 	d.rules[r.Target] = r
+
 	if len(d.firstExecutorGoal) == 0 {
 		d.firstExecutorGoal = Goal{r.Target}
 	}
@@ -47,7 +49,9 @@ func (d *Definition) EffectiveGoal(explicitGoal Goal) Goal {
 		if len(d.defaultGoal) == 0 {
 			return d.firstExecutorGoal
 		}
+
 		return d.defaultGoal
 	}
+
 	return explicitGoal
 }

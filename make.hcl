@@ -61,7 +61,7 @@ dynamic rule {
   }
 }
 
-command lint { command = "golangci-lint run" }
+command lint { command = "golangci-lint run --fix" }
 command test {
   dependencies = ["import"]
   command = "go test ./..."

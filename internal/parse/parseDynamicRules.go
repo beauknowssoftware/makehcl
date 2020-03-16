@@ -45,6 +45,7 @@ func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) ([]*definition.
 	}
 
 	result := make([]*definition.Rule, 0, len(forEach))
+
 	for _, each := range forEach {
 		ectx := ctx.NewChild()
 		ectx.Variables = map[string]cty.Value{
@@ -58,5 +59,6 @@ func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) ([]*definition.
 
 		result = append(result, r)
 	}
+
 	return result, nil
 }

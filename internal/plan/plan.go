@@ -31,18 +31,22 @@ func visit(o Options, d definition.Definition, t definition.Target, p *Plan, vis
 	if err != nil {
 		return err
 	}
+
 	dt[t] = mt
 
 	r := d.Rule(t)
 	if r == nil && mt != nil {
 		return nil
 	}
+
 	shouldVisit := o.IgnoreLastModified || mt == nil // mt should only be null if file does not exist
+
 	for _, dep := range r.Dependencies {
 		err := visit(o, d, dep, p, visited, dt)
 		if err != nil {
 			return err
 		}
+
 		shouldVisit = shouldVisit || visited[dep] || (mt != nil && dt[dep].After(*mt))
 	}
 

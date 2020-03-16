@@ -44,6 +44,7 @@ var (
 
 func getAllAttributes(blockType string, con *hcl.BodyContent) (map[string]*hcl.Attribute, error) {
 	attrs := make(map[string]*hcl.Attribute)
+
 	for _, blk := range con.Blocks {
 		switch blk.Type {
 		case blockType:
@@ -51,11 +52,13 @@ func getAllAttributes(blockType string, con *hcl.BodyContent) (map[string]*hcl.A
 			if diag.HasErrors() {
 				return nil, errors.Wrapf(diag, "failed to get %v attributes", blockType)
 			}
+
 			for k, v := range attr {
 				attrs[k] = v
 			}
 		}
 	}
+
 	return attrs, nil
 }
 
@@ -84,12 +87,14 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 	if err != nil {
 		return nil, err
 	}
+
 	d.GlobalEnvironment = envs
 
 	optsAttrs, err := getAllAttributes("opts", con)
 	if err != nil {
 		return nil, err
 	}
+
 	for name, attr := range optsAttrs {
 		switch name {
 		case "shell":
@@ -98,6 +103,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 				err = errors.Wrap(err, "failed to evaluate shell opt")
 				return nil, err
 			}
+
 			d.Shell = v
 		case "shell_flags":
 			v, err := evaluateString(attr.Expr, ctx)
@@ -105,6 +111,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 				err = errors.Wrap(err, "failed to evaluate shell_flag opt")
 				return nil, err
 			}
+
 			d.ShellFlags = &v
 		}
 	}
@@ -117,6 +124,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 				err = errors.Wrap(err, "failed to evaluate default_goal")
 				return nil, err
 			}
+
 			d.SetDefaultGoal(defaultGoal)
 		}
 	}
@@ -128,6 +136,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 			if err != nil {
 				return nil, err
 			}
+
 			d.AddRule(r)
 		case "dynamic":
 			switch blk.Labels[0] {
@@ -136,6 +145,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 				if err != nil {
 					return nil, err
 				}
+
 				for _, dy := range dy {
 					d.AddRule(dy)
 				}
@@ -147,6 +157,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 			if err != nil {
 				return nil, err
 			}
+
 			d.AddCommand(c)
 		}
 	}

@@ -34,6 +34,7 @@ func Do(o DoOptions) error {
 
 	for _, t := range p {
 		r := d.Rule(t)
+
 		if o.DryRun {
 			fmt.Println(r.Command)
 		} else {

@@ -11,11 +11,13 @@ import (
 
 func mergeFunctions(ms ...map[string]function.Function) map[string]function.Function {
 	r := make(map[string]function.Function)
+
 	for _, m := range ms {
 		for k, v := range m {
 			r[k] = v
 		}
 	}
+
 	return r
 }
 

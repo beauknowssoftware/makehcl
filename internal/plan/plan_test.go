@@ -25,6 +25,7 @@ func createFile(t *testing.T, f filename, data fileContents) {
 		err = errors.Wrapf(err, "failed to create directory %v", dir)
 		t.Fatal(err)
 	}
+
 	if err := ioutil.WriteFile(f, data, os.ModePerm); err != nil {
 		err = errors.Wrapf(err, "failed to write file %v", f)
 		t.Fatal(err)
@@ -58,6 +59,7 @@ func safeDo(t *testing.T, o plan.DoOptions) plan.Plan {
 		err = errors.Wrap(err, "failed to plan")
 		t.Fatal(err)
 	}
+
 	return p
 }
 
@@ -67,6 +69,7 @@ func copyDir(t *testing.T, src, dest string) {
 		err = errors.Wrapf(err, "failed to list %v", src)
 		t.Fatal(err)
 	}
+
 	for _, entry := range entries {
 		srcFile := filepath.Join(src, entry.Name())
 		destFile := filepath.Join(dest, entry.Name())
@@ -80,7 +83,9 @@ func copyToTemp(t *testing.T, src string) string {
 		err = errors.Wrap(err, "failed to create temporary directory")
 		t.Fatal(err)
 	}
+
 	copyDir(t, src, tempDir)
+
 	return tempDir
 }
 
@@ -99,11 +104,13 @@ func pushd(t *testing.T, dir string) func() {
 		err = errors.Wrapf(err, "failed to pushd to %v", dir)
 		t.Fatal(err)
 	}
+
 	return func() {
 		if err := os.Chdir(originalDir); err != nil {
 			err = errors.Wrapf(err, "failed to popd directories to %v", originalDir)
 			t.Fatal(err)
 		}
+
 		if !local {
 			if err := os.RemoveAll(dir); err != nil {
 				err = errors.Wrapf(err, "failed to remove %v", dir)

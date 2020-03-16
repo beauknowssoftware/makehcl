@@ -59,6 +59,7 @@ func fillRule(body hcl.Body, ctx *hcl.EvalContext) (*definition.Rule, error) {
 				err = errors.Wrap(err, "failed to evaluate environment")
 				return nil, err
 			}
+
 			r.Environment = environment
 		case "command":
 			command, err := evaluateString(attr.Expr, ectx)
@@ -66,6 +67,7 @@ func fillRule(body hcl.Body, ctx *hcl.EvalContext) (*definition.Rule, error) {
 				err = errors.Wrap(err, "failed to evaluate command")
 				return nil, err
 			}
+
 			r.Command = command
 		case "dependencies":
 			dependencies, err := evaluateStringArray(attr.Expr, ectx)
@@ -73,6 +75,7 @@ func fillRule(body hcl.Body, ctx *hcl.EvalContext) (*definition.Rule, error) {
 				err = errors.Wrap(err, "failed to evaluate dependencies")
 				return nil, err
 			}
+
 			r.Dependencies = dependencies
 		}
 	}

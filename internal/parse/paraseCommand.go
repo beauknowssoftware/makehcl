@@ -43,6 +43,7 @@ func constructCommand(blk *hcl.Block, ctx *hcl.EvalContext) (*definition.Command
 				err = errors.Wrap(err, "failed to evaluate environment")
 				return nil, err
 			}
+
 			c.Environment = environment
 		case "command":
 			command, err := evaluateString(attr.Expr, ctx)
@@ -50,6 +51,7 @@ func constructCommand(blk *hcl.Block, ctx *hcl.EvalContext) (*definition.Command
 				err = errors.Wrap(err, "failed to evaluate command")
 				return nil, err
 			}
+
 			c.Command = command
 		case "dependencies":
 			dependencies, err := evaluateStringArray(attr.Expr, ctx)
@@ -57,6 +59,7 @@ func constructCommand(blk *hcl.Block, ctx *hcl.EvalContext) (*definition.Command
 				err = errors.Wrap(err, "failed to evaluate dependencies")
 				return nil, err
 			}
+
 			c.Dependencies = dependencies
 		}
 	}

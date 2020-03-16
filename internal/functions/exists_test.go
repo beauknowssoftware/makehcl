@@ -14,6 +14,7 @@ func exists(t *testing.T, args []cty.Value, retType cty.Type) cty.Value {
 		err = errors.Wrap(err, "failed to exists")
 		t.Fatal(err)
 	}
+
 	return v
 }
 

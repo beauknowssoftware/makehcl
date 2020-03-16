@@ -48,6 +48,7 @@ func bash(cmd string, opts bashOpts) error {
 	if err != nil {
 		return err
 	}
+
 	e := fmt.Sprintf("HOME=%v", hd)
 	c.Env = append(c.Env, e)
 

@@ -33,5 +33,6 @@ func (c *TargetsCommand) Execute(_ []string) error {
 	for _, t := range ts {
 		fmt.Println(t)
 	}
+
 	return nil
 }

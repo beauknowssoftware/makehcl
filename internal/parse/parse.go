@@ -22,10 +22,12 @@ type Options struct {
 
 func envValue() cty.Value {
 	env := make(map[string]cty.Value)
+
 	for _, e := range os.Environ() {
 		p := strings.SplitN(e, "=", 2)
 		env[p[0]] = cty.StringVal(p[1])
 	}
+
 	return cty.MapVal(env)
 }
 
@@ -51,6 +53,7 @@ func Parse(o Options) (*definition.Definition, error) {
 	}
 
 	p := hclparse.NewParser()
+
 	f, diag := p.ParseHCLFile(o.Filename)
 	if diag.HasErrors() {
 		return nil, diag

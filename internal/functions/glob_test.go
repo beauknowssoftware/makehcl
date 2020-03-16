@@ -15,6 +15,7 @@ func glob(t *testing.T, args []cty.Value, retType cty.Type) cty.Value {
 		err = errors.Wrap(err, "failed to glob")
 		t.Fatal(err)
 	}
+
 	return v
 }
 
@@ -29,6 +30,7 @@ func pushd(t *testing.T, dir string) func() {
 		err = errors.Wrapf(err, "failed to pushd to %v", dir)
 		t.Fatal(err)
 	}
+
 	return func() {
 		if err := os.Chdir(originalDir); err != nil {
 			err = errors.Wrapf(err, "failed to popd directories to %v", originalDir)

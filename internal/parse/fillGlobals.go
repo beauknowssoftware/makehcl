@@ -46,14 +46,18 @@ func (s *globalSorter) visit(g global) {
 	for _, v := range g.attr.Expr.Variables() {
 		globalType := v.RootName()
 		spl := v.SimpleSplit()
+
 		if spl.Rel == nil || len(spl.Rel) == 0 {
 			continue
 		}
+
 		name := spl.Rel[0].(hcl.TraverseAttr).Name
 		gName := globalName{globalType, name}
+
 		if g.name() == gName && globalType == "env" {
 			continue
 		}
+
 		if g, hasGlobal := s.globals[gName]; hasGlobal {
 			s.visit(g)
 		}
@@ -67,6 +71,7 @@ func (s *globalSorter) visit(g global) {
 func (s *globalSorter) sort() {
 	s.visited = make(map[globalName]bool)
 	s.visiting = make(map[globalName]bool)
+
 	for _, a := range s.globals {
 		s.visit(a)
 	}
@@ -76,6 +81,7 @@ func fillGlobals(attrSets map[string]map[string]*hcl.Attribute, ctx *hcl.EvalCon
 	s := globalSorter{
 		globals: make(map[globalName]global),
 	}
+
 	for globalType, attr := range attrSets {
 		for _, a := range attr {
 			g := global{
@@ -85,7 +91,9 @@ func fillGlobals(attrSets map[string]map[string]*hcl.Attribute, ctx *hcl.EvalCon
 			s.globals[g.name()] = g
 		}
 	}
+
 	s.sort()
+
 	vars := make(map[string]cty.Value)
 	envResult := make(map[string]string)
 	envs := ctx.Variables["env"].AsValueMap()
@@ -94,9 +102,11 @@ func fillGlobals(attrSets map[string]map[string]*hcl.Attribute, ctx *hcl.EvalCon
 		if a.globalType == "var" {
 			val, diag := a.attr.Expr.Value(ctx)
 			vars[a.attr.Name] = val
+
 			if diag.HasErrors() {
 				return nil, errors.Wrap(diag, "failed to get var attributes")
 			}
+
 			ctx.Variables["var"] = cty.ObjectVal(vars)
 		} else if a.globalType == "env" {
 			val, diag := a.attr.Expr.Value(ctx)
