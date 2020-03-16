@@ -11,3 +11,4 @@ linters:
     - gosec
     - gomnd
     - gocritic
+    - goconst

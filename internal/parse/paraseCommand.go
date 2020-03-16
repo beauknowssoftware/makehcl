@@ -7,19 +7,25 @@ import (
 	"github.com/hashicorp/hcl/v2"
 )
 
+const (
+	commandAttributeName      = "command"
+	dependenciesAttributeName = "dependencies"
+	environmentAttributeName  = "environment"
+)
+
 var (
 	commandSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			hcl.AttributeSchema{
-				Name:     "command",
+				Name:     commandAttributeName,
 				Required: false,
 			},
 			hcl.AttributeSchema{
-				Name:     "dependencies",
+				Name:     dependenciesAttributeName,
 				Required: false,
 			},
 			hcl.AttributeSchema{
-				Name:     "environment",
+				Name:     environmentAttributeName,
 				Required: false,
 			},
 		},
@@ -37,26 +43,26 @@ func constructCommand(blk *hcl.Block, ctx *hcl.EvalContext) (*definition.Command
 
 	for name, attr := range con.Attributes {
 		switch name {
-		case "environment":
+		case environmentAttributeName:
 			environment, err := evaluateStringMap(attr.Expr, ctx)
 			if err != nil {
-				err = errors.Wrap(err, "failed to evaluate environment")
+				err = errors.Wrapf(err, "failed to evaluate %v", environmentAttributeName)
 				return nil, err
 			}
 
 			c.Environment = environment
-		case "command":
+		case commandAttributeName:
 			command, err := evaluateString(attr.Expr, ctx)
 			if err != nil {
-				err = errors.Wrap(err, "failed to evaluate command")
+				err = errors.Wrapf(err, "failed to evaluate %v", commandAttributeName)
 				return nil, err
 			}
 
 			c.Command = command
-		case "dependencies":
+		case dependenciesAttributeName:
 			dependencies, err := evaluateStringArray(attr.Expr, ctx)
 			if err != nil {
-				err = errors.Wrap(err, "failed to evaluate dependencies")
+				err = errors.Wrapf(err, "failed to evaluate %v", dependenciesAttributeName)
 				return nil, err
 			}
 

@@ -9,6 +9,12 @@ import (
 	"github.com/beauknowssoftware/makehcl/internal/definition"
 )
 
+const (
+	commandBlockType = "command"
+	ruleBlockType    = "rule"
+	dynamicBlockType = "dynamic"
+)
+
 var (
 	definitionSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
@@ -28,14 +34,14 @@ var (
 				Type: "var",
 			},
 			hcl.BlockHeaderSchema{
-				Type:       "command",
+				Type:       commandBlockType,
 				LabelNames: []string{"name"},
 			},
 			hcl.BlockHeaderSchema{
-				Type: "rule",
+				Type: ruleBlockType,
 			},
 			hcl.BlockHeaderSchema{
-				Type:       "dynamic",
+				Type:       dynamicBlockType,
 				LabelNames: []string{"type"},
 			},
 		},
@@ -129,14 +135,14 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 
 	for _, blk := range con.Blocks {
 		switch blk.Type {
-		case "rule":
+		case ruleBlockType:
 			r, err := constructRule(blk, ctx)
 			if err != nil {
 				return nil, err
 			}
 
 			d.AddRule(r)
-		case "dynamic":
+		case dynamicBlockType:
 			switch blk.Labels[0] {
 			case "rule":
 				dy, err := constructDynamicRules(blk, ctx)
@@ -150,7 +156,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 			default:
 				return nil, fmt.Errorf("unknown dynamic type %v", blk.Labels[0])
 			}
-		case "command":
+		case commandBlockType:
 			c, err := constructCommand(blk, ctx)
 			if err != nil {
 				return nil, err
