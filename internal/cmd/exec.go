@@ -28,7 +28,7 @@ func Exec() error {
 	var targets TargetsCommand
 	_, err = p.AddCommand("targets",
 		"Display list of targets",
-		"The targets command displays a list or executable targets",
+		"The targets command displays a list of executable targets",
 		&targets)
 
 	if err != nil {
