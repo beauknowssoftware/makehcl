@@ -22,7 +22,14 @@ type DoOptions struct {
 	Options
 }
 
-func visit(o Options, d definition.Definition, t definition.Target, p *Plan, visited map[definition.Target]bool, dt map[definition.Target]*time.Time) error {
+func visit(
+	o Options,
+	d definition.Definition,
+	t definition.Target,
+	p *Plan,
+	visited map[definition.Target]bool,
+	dt map[definition.Target]*time.Time,
+) error {
 	if visited[t] {
 		return nil
 	}

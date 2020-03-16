@@ -6,3 +6,4 @@ linters:
     - unparam
     - unconvert
     - nakedret
+    - lll
