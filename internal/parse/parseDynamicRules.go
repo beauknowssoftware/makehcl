@@ -12,6 +12,10 @@ var (
 	dynamicRuleListSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			{
+				Name:     "name",
+				Required: false,
+			},
+			{
 				Name:     "for_each",
 				Required: true,
 			},
@@ -23,7 +27,12 @@ var (
 	}
 )
 
-func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) ([]*definition.Rule, error) {
+type dynamicRule struct {
+	name  string
+	rules []*definition.Rule
+}
+
+func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) (*dynamicRule, error) {
 	con, body, diag := blk.Body.PartialContent(&dynamicRuleListSchema)
 	if diag.HasErrors() {
 		return nil, diag
@@ -35,6 +44,8 @@ func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) ([]*definition.
 		return nil, err
 	}
 
+	var dr dynamicRule
+
 	as := "rule"
 	if asVal, hasAs := con.Attributes["as"]; hasAs {
 		as, err = evaluateString(asVal.Expr, ctx)
@@ -44,7 +55,15 @@ func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) ([]*definition.
 		}
 	}
 
-	result := make([]*definition.Rule, 0, len(forEach))
+	if nameVal, hasName := con.Attributes["name"]; hasName {
+		dr.name, err = evaluateString(nameVal.Expr, ctx)
+		if err != nil {
+			err = errors.Wrap(err, "failed to evaluate name")
+			return nil, err
+		}
+	}
+
+	dr.rules = make([]*definition.Rule, 0, len(forEach))
 
 	for _, each := range forEach {
 		ectx := ctx.NewChild()
@@ -57,8 +76,8 @@ func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) ([]*definition.
 			return nil, err
 		}
 
-		result = append(result, r)
+		dr.rules = append(dr.rules, r)
 	}
 
-	return result, nil
+	return &dr, nil
 }

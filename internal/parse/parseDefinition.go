@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/pkg/errors"
+	"github.com/zclconf/go-cty/cty"
 
 	"github.com/beauknowssoftware/makehcl/internal/definition"
 )
@@ -148,21 +149,21 @@ func fillRuleFromRuleBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.Ev
 	return nil
 }
 
-func fillRulesFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.EvalContext) error {
+func fillRulesFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.EvalContext) (*dynamicRule, error) {
 	switch blk.Labels[0] {
 	case "rule":
 		dy, err := constructDynamicRules(blk, ctx)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		for _, dy := range dy {
+		for _, dy := range dy.rules {
 			d.AddRule(dy)
 		}
 
-		return nil
+		return dy, nil
 	default:
-		return fmt.Errorf("unknown dynamic type %v", blk.Labels[0])
+		return nil, fmt.Errorf("unknown dynamic type %v", blk.Labels[0])
 	}
 }
 
@@ -178,6 +179,8 @@ func fillRuleFromCommandBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl
 }
 
 func fillRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
+	rules := make(map[string]cty.Value)
+
 	for _, blk := range con.Blocks {
 		switch blk.Type {
 		case ruleBlockType:
@@ -185,14 +188,28 @@ func fillRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalCont
 				return err
 			}
 		case dynamicBlockType:
-			if err := fillRulesFromDynamicBlock(blk, d, ctx); err != nil {
+			dr, err := fillRulesFromDynamicBlock(blk, d, ctx)
+			if err != nil {
 				return err
+			}
+
+			if dr.name != "" {
+				targets := make([]cty.Value, 0, len(dr.rules))
+				for _, r := range dr.rules {
+					targets = append(targets, cty.StringVal(r.Target))
+				}
+
+				rules[dr.name] = cty.ListVal(targets)
 			}
 		case commandBlockType:
 			if err := fillRuleFromCommandBlock(blk, d, ctx); err != nil {
 				return err
 			}
 		}
+	}
+
+	if len(rules) > 0 {
+		ctx.Variables["rule"] = cty.MapVal(rules)
 	}
 
 	return nil
@@ -214,11 +231,11 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 		return nil, err
 	}
 
-	if err := fillDefaultGoal(con, &d, ctx); err != nil {
+	if err := fillRules(con, &d, ctx); err != nil {
 		return nil, err
 	}
 
-	if err := fillRules(con, &d, ctx); err != nil {
+	if err := fillDefaultGoal(con, &d, ctx); err != nil {
 		return nil, err
 	}
 

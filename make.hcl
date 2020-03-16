@@ -4,7 +4,8 @@ var {
   is_debug = exists(env, "DEBUG")
   go_deps = concat(
     glob("**.go"),
-    ["go.mod", "go.sum"]
+    glob("**/testdata/**"),
+    ["go.mod", "go.sum"],
   )
 }
 
@@ -71,7 +72,7 @@ rule {
 rule {
   target = ".lint"
   tee_target = true
-  dependencies = var.go_deps
+  dependencies = concat(var.go_deps, [".import", ".test"])
   command = "golangci-lint run --fix"
 }
 
