@@ -46,8 +46,7 @@ func getAllAttributes(blockType string, con *hcl.BodyContent) (map[string]*hcl.A
 	attrs := make(map[string]*hcl.Attribute)
 
 	for _, blk := range con.Blocks {
-		switch blk.Type {
-		case blockType:
+		if blk.Type == blockType {
 			attr, diag := blk.Body.JustAttributes()
 			if diag.HasErrors() {
 				return nil, errors.Wrapf(diag, "failed to get %v attributes", blockType)
@@ -117,8 +116,7 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 	}
 
 	for name, attr := range con.Attributes {
-		switch name {
-		case "default_goal":
+		if name == "default_goal" {
 			defaultGoal, err := evaluateStringArray(attr.Expr, ctx)
 			if err != nil {
 				err = errors.Wrap(err, "failed to evaluate default_goal")

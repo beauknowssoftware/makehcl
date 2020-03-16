@@ -10,3 +10,4 @@ linters:
     - interfacer
     - gosec
     - gomnd
+    - gocritic

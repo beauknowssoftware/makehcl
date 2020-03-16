@@ -11,14 +11,17 @@ func Exists(args []cty.Value, _ cty.Type) (cty.Value, error) {
 	key := args[1].AsString()
 
 	t := args[0].Type()
-	if t.IsObjectType() {
+
+	switch {
+	case t.IsObjectType():
 		res := t.HasAttribute(key)
 		return cty.BoolVal(res), nil
-	} else if t.IsMapType() {
+	case t.IsMapType():
 		m := args[0].AsValueMap()
 		_, res := m[key]
+
 		return cty.BoolVal(res), nil
-	} else {
+	default:
 		return cty.False, fmt.Errorf("expected map or object got %v", t.FriendlyName())
 	}
 }

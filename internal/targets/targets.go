@@ -32,11 +32,12 @@ func Do(o DoOptions) ([]definition.Target, error) {
 	r := make([]definition.Target, 0, len(rules))
 
 	for _, rl := range rules {
-		if o.RuleOnly && !rl.IsPhony {
+		switch {
+		case o.RuleOnly && !rl.IsPhony:
 			r = append(r, rl.Target)
-		} else if o.CommandOnly && rl.IsPhony {
+		case o.CommandOnly && !rl.IsPhony:
 			r = append(r, rl.Target)
-		} else if !o.RuleOnly && !o.CommandOnly {
+		case !o.RuleOnly && !o.CommandOnly:
 			r = append(r, rl.Target)
 		}
 	}
