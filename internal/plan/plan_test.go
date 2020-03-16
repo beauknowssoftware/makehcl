@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
+const (
 	local = false
 )
 
