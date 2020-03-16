@@ -1,23 +1,28 @@
 linters:
   enable:
-    - wsl
-    - prealloc
-    - whitespace
-    - unparam
-    - unconvert
-    - nakedret
-    - lll
-    - interfacer
-    - gosec
-    - gomnd
-    - gocritic
-    - goconst
-    - gochecknoinits
-    - dupl
-    - golint
-    - goimports
-    - gofmt
-    - stylecheck
-    - gocyclo
-    - gocognit
     - dogsled
+    - dupl
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gomnd
+    - gosec
+    - interfacer
+    - lll
+    - nakedret
+    - prealloc
+    - stylecheck
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
