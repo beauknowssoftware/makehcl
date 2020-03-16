@@ -257,6 +257,12 @@ func TestRun(t *testing.T) {
 				"test.txt.4": fileContents("hello4\n"),
 			},
 		},
+		"tee target": {
+			folder: "testdata/tee_target",
+			want: map[filename]fileContents{
+				"test.txt": fileContents("hello\n"),
+			},
+		},
 		"echo": {
 			folder: "testdata/echo",
 			want: map[filename]fileContents{

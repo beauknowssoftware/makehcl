@@ -109,3 +109,17 @@ func evaluateString(expr hcl.Expression, ctx *hcl.EvalContext) (string, error) {
 
 	return val.AsString(), nil
 }
+
+func evaluateBool(expr hcl.Expression, ctx *hcl.EvalContext) (bool, error) {
+	val, diag := expr.Value(ctx)
+	if diag.HasErrors() {
+		return false, diag
+	}
+
+	t := val.Type()
+	if t != cty.Bool {
+		return false, fmt.Errorf("expected a bool, got a %v", t.FriendlyName())
+	}
+
+	return val.True(), nil
+}

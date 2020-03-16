@@ -12,6 +12,10 @@ var (
 	ruleSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			{
+				Name:     "tee_target",
+				Required: false,
+			},
+			{
 				Name:     "environment",
 				Required: false,
 			},
@@ -53,6 +57,14 @@ func fillRule(body hcl.Body, ctx *hcl.EvalContext) (*definition.Rule, error) {
 
 	for name, attr := range con.Attributes {
 		switch name {
+		case "tee_target":
+			teeTarget, err := evaluateBool(attr.Expr, ectx)
+			if err != nil {
+				err = errors.Wrap(err, "failed to evaluate tee_target")
+				return nil, err
+			}
+
+			r.TeeTarget = teeTarget
 		case "environment":
 			environment, err := evaluateStringMap(attr.Expr, ectx)
 			if err != nil {

@@ -12,6 +12,7 @@ type bashOpts struct {
 	globalEnv  map[string]string
 	shell      string
 	shellFlags *string
+	teeTarget  *string
 }
 
 const (
@@ -62,7 +63,17 @@ func bash(cmd string, opts bashOpts) error {
 		c.Env = append(c.Env, e)
 	}
 
-	c.Stdout = os.Stdout
+	if opts.teeTarget != nil {
+		f, err := os.Create(*opts.teeTarget)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		c.Stdout = f
+	} else {
+		c.Stdout = os.Stdout
+	}
+
 	c.Stderr = os.Stderr
 
 	return c.Run()

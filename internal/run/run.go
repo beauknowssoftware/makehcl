@@ -45,6 +45,9 @@ func Do(o DoOptions) error {
 				shell:      d.Shell,
 				shellFlags: d.ShellFlags,
 			}
+			if r.TeeTarget {
+				opts.teeTarget = &t
+			}
 			if err := bash(r.Command, opts); err != nil {
 				return err
 			}
