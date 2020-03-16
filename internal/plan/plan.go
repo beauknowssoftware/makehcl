@@ -1,6 +1,7 @@
 package plan
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/beauknowssoftware/makehcl/internal/definition"
@@ -45,6 +46,10 @@ func (v *planVisitor) visit(t definition.Target) error {
 	r := v.d.Rule(t)
 	if r == nil && mt != nil {
 		return nil
+	}
+
+	if r == nil {
+		return fmt.Errorf("unknown target %v", t)
 	}
 
 	shouldVisit := v.o.IgnoreLastModified || mt == nil // mt should only be null if file does not exist
