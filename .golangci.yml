@@ -12,3 +12,4 @@ linters:
     - gomnd
     - gocritic
     - goconst
+    - gochecknoinits
