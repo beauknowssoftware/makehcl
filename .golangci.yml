@@ -18,3 +18,5 @@ linters:
     - goimports
     - gofmt
     - stylecheck
+    - gocyclo
+    - gocognit
