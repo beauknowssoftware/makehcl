@@ -14,3 +14,4 @@ linters:
     - goconst
     - gochecknoinits
     - dupl
+    - golint
