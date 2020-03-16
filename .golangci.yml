@@ -8,3 +8,4 @@ linters:
     - nakedret
     - lll
     - interfacer
+    - gosec
