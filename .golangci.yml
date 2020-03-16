@@ -20,3 +20,4 @@ linters:
     - stylecheck
     - gocyclo
     - gocognit
+    - dogsled
