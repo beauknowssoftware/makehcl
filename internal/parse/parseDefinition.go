@@ -179,15 +179,27 @@ func fillRuleFromCommandBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl
 }
 
 func fillRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
-	rules := make(map[string]cty.Value)
-
 	for _, blk := range con.Blocks {
 		switch blk.Type {
 		case ruleBlockType:
 			if err := fillRuleFromRuleBlock(blk, d, ctx); err != nil {
 				return err
 			}
-		case dynamicBlockType:
+		case commandBlockType:
+			if err := fillRuleFromCommandBlock(blk, d, ctx); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func fillDynamicRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
+	rules := make(map[string]cty.Value)
+
+	for _, blk := range con.Blocks {
+		if blk.Type == dynamicBlockType {
 			dr, err := fillRulesFromDynamicBlock(blk, d, ctx)
 			if err != nil {
 				return err
@@ -200,10 +212,6 @@ func fillRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalCont
 				}
 
 				rules[dr.name] = cty.ListVal(targets)
-			}
-		case commandBlockType:
-			if err := fillRuleFromCommandBlock(blk, d, ctx); err != nil {
-				return err
 			}
 		}
 	}
@@ -228,6 +236,10 @@ func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definit
 	}
 
 	if err := fillOpts(con, &d, ctx); err != nil {
+		return nil, err
+	}
+
+	if err := fillDynamicRules(con, &d, ctx); err != nil {
 		return nil, err
 	}
 

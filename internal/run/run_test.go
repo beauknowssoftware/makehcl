@@ -215,6 +215,13 @@ func TestRun(t *testing.T) {
 				"test2.txt": {},
 			},
 		},
+		"dynamic rule in command": {
+			folder: "testdata/dynamic_rule_in_command",
+			want: map[filename]fileContents{
+				"test.txt":  {},
+				"test2.txt": {},
+			},
+		},
 		"dynamic rule default": {
 			folder: "testdata/dynamic_rule_default",
 			want: map[filename]fileContents{
