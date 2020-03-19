@@ -32,14 +32,14 @@ var (
 	}
 )
 
-func constructCommand(blk *hcl.Block, ctx *hcl.EvalContext) (*definition.Command, error) {
-	con, diag := blk.Body.Content(&commandSchema)
+func fillCommand(name string, body hcl.Body, ctx *hcl.EvalContext) (*definition.Command, error) {
+	con, diag := body.Content(&commandSchema)
 	if diag.HasErrors() {
 		return nil, diag
 	}
 
 	var c definition.Command
-	c.Name = blk.Labels[0]
+	c.Name = name
 
 	for name, attr := range con.Attributes {
 		switch name {
@@ -71,4 +71,8 @@ func constructCommand(blk *hcl.Block, ctx *hcl.EvalContext) (*definition.Command
 	}
 
 	return &c, nil
+}
+
+func constructCommand(blk *hcl.Block, ctx *hcl.EvalContext) (*definition.Command, error) {
+	return fillCommand(blk.Labels[0], blk.Body, ctx)
 }

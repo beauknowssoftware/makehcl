@@ -149,7 +149,12 @@ func fillRuleFromRuleBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.Ev
 	return nil
 }
 
-func fillRulesFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.EvalContext) (*dynamicRule, error) {
+type dynamicTarget struct {
+	alias   string
+	targets []cty.Value
+}
+
+func fillFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.EvalContext) (*dynamicTarget, error) {
 	switch blk.Labels[0] {
 	case "rule":
 		dy, err := constructDynamicRules(blk, ctx)
@@ -157,11 +162,32 @@ func fillRulesFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hc
 			return nil, err
 		}
 
-		for _, dy := range dy.rules {
-			d.AddRule(dy)
+		var dt dynamicTarget
+		dt.alias = dy.alias
+		dt.targets = make([]cty.Value, 0, len(dy.rules))
+
+		for _, dr := range dy.rules {
+			d.AddRule(dr)
+			dt.targets = append(dt.targets, cty.StringVal(dr.Target))
 		}
 
-		return dy, nil
+		return &dt, nil
+	case commandBlockType:
+		dy, err := constructDynamicCommands(blk, ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		var dt dynamicTarget
+		dt.alias = dy.alias
+		dt.targets = make([]cty.Value, 0, len(dy.commands))
+
+		for _, dc := range dy.commands {
+			d.AddCommand(dc)
+			dt.targets = append(dt.targets, cty.StringVal(dc.Name))
+		}
+
+		return &dt, nil
 	default:
 		return nil, fmt.Errorf("unknown dynamic type %v", blk.Labels[0])
 	}
@@ -200,18 +226,13 @@ func fillDynamicRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.E
 
 	for _, blk := range con.Blocks {
 		if blk.Type == dynamicBlockType {
-			dr, err := fillRulesFromDynamicBlock(blk, d, ctx)
+			dt, err := fillFromDynamicBlock(blk, d, ctx)
 			if err != nil {
 				return err
 			}
 
-			if dr.alias != "" {
-				targets := make([]cty.Value, 0, len(dr.rules))
-				for _, r := range dr.rules {
-					targets = append(targets, cty.StringVal(r.Target))
-				}
-
-				rules[dr.alias] = cty.ListVal(targets)
+			if dt.alias != "" {
+				rules[dt.alias] = cty.ListVal(dt.targets)
 			}
 		}
 	}
