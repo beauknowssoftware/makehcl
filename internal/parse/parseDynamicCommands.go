@@ -81,6 +81,8 @@ func constructDynamicCommands(blk *hcl.Block, ctx *hcl.EvalContext) (*dynamicCom
 			return nil, err
 		}
 
+		ectx.Variables["name"] = cty.StringVal(name)
+
 		r, err := fillCommand(name, body, ectx)
 		if err != nil {
 			return nil, err
