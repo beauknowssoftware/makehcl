@@ -150,13 +150,14 @@ func fillRuleFromRuleBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.Ev
 }
 
 type dynamicTarget struct {
-	alias   string
-	targets []cty.Value
+	targetType string
+	alias      string
+	targets    []cty.Value
 }
 
 func fillFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.EvalContext) (*dynamicTarget, error) {
 	switch blk.Labels[0] {
-	case "rule":
+	case ruleBlockType:
 		dy, err := constructDynamicRules(blk, ctx)
 		if err != nil {
 			return nil, err
@@ -164,6 +165,7 @@ func fillFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.Eva
 
 		var dt dynamicTarget
 		dt.alias = dy.alias
+		dt.targetType = ruleBlockType
 		dt.targets = make([]cty.Value, 0, len(dy.rules))
 
 		for _, dr := range dy.rules {
@@ -180,6 +182,7 @@ func fillFromDynamicBlock(blk *hcl.Block, d *definition.Definition, ctx *hcl.Eva
 
 		var dt dynamicTarget
 		dt.alias = dy.alias
+		dt.targetType = commandBlockType
 		dt.targets = make([]cty.Value, 0, len(dy.commands))
 
 		for _, dc := range dy.commands {
@@ -223,6 +226,7 @@ func fillRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalCont
 
 func fillDynamicRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.EvalContext) error {
 	rules := make(map[string]cty.Value)
+	commands := make(map[string]cty.Value)
 
 	for _, blk := range con.Blocks {
 		if blk.Type == dynamicBlockType {
@@ -231,7 +235,11 @@ func fillDynamicRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.E
 				return err
 			}
 
-			if dt.alias != "" {
+			if dt.alias != "" && dt.targetType == commandBlockType {
+				commands[dt.alias] = cty.ListVal(dt.targets)
+			}
+
+			if dt.alias != "" && dt.targetType == ruleBlockType {
 				rules[dt.alias] = cty.ListVal(dt.targets)
 			}
 		}
@@ -239,6 +247,10 @@ func fillDynamicRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.E
 
 	if len(rules) > 0 {
 		ctx.Variables["rule"] = cty.MapVal(rules)
+	}
+
+	if len(commands) > 0 {
+		ctx.Variables["command"] = cty.MapVal(commands)
 	}
 
 	return nil
