@@ -66,7 +66,7 @@ rule {
   target = ".test"
   tee_target = true
   dependencies = concat(var.go_deps, [".import"])
-  command = "go test ./..."
+  command = "go test -count=1 ./..."
 }
 
 rule {
