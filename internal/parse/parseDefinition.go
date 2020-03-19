@@ -205,13 +205,13 @@ func fillDynamicRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.E
 				return err
 			}
 
-			if dr.name != "" {
+			if dr.alias != "" {
 				targets := make([]cty.Value, 0, len(dr.rules))
 				for _, r := range dr.rules {
 					targets = append(targets, cty.StringVal(r.Target))
 				}
 
-				rules[dr.name] = cty.ListVal(targets)
+				rules[dr.alias] = cty.ListVal(targets)
 			}
 		}
 	}

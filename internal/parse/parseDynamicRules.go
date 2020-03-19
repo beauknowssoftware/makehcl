@@ -12,7 +12,7 @@ var (
 	dynamicRuleListSchema = hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			{
-				Name:     "name",
+				Name:     "alias",
 				Required: false,
 			},
 			{
@@ -28,7 +28,7 @@ var (
 )
 
 type dynamicRule struct {
-	name  string
+	alias string
 	rules []*definition.Rule
 }
 
@@ -55,10 +55,10 @@ func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) (*dynamicRule, 
 		}
 	}
 
-	if nameVal, hasName := con.Attributes["name"]; hasName {
-		dr.name, err = evaluateString(nameVal.Expr, ctx)
+	if aliasVal, hasName := con.Attributes["alias"]; hasName {
+		dr.alias, err = evaluateString(aliasVal.Expr, ctx)
 		if err != nil {
-			err = errors.Wrap(err, "failed to evaluate name")
+			err = errors.Wrap(err, "failed to evaluate alias")
 			return nil, err
 		}
 	}
