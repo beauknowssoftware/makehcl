@@ -35,7 +35,7 @@ func Do(o DoOptions) ([]definition.Target, error) {
 		switch {
 		case o.RuleOnly && !rl.IsPhony:
 			r = append(r, rl.Target)
-		case o.CommandOnly && !rl.IsPhony:
+		case o.CommandOnly && rl.IsPhony:
 			r = append(r, rl.Target)
 		case !o.RuleOnly && !o.CommandOnly:
 			r = append(r, rl.Target)
