@@ -27,6 +27,42 @@ func TestConcat(t *testing.T) {
 		"empty": {
 			expected: cty.ListValEmpty(cty.List(cty.String)),
 		},
+		"single tuple": {
+			args: []cty.Value{
+				cty.TupleVal([]cty.Value{
+					cty.StringVal("a"),
+					cty.StringVal("b"),
+					cty.StringVal("c"),
+				}),
+			},
+			expected: cty.ListVal([]cty.Value{
+				cty.StringVal("a"),
+				cty.StringVal("b"),
+				cty.StringVal("c"),
+			}),
+		},
+		"multiple tuples": {
+			args: []cty.Value{
+				cty.TupleVal([]cty.Value{
+					cty.StringVal("a"),
+					cty.StringVal("b"),
+					cty.StringVal("c"),
+				}),
+				cty.TupleVal([]cty.Value{
+					cty.StringVal("d"),
+					cty.StringVal("e"),
+					cty.StringVal("f"),
+				}),
+			},
+			expected: cty.ListVal([]cty.Value{
+				cty.StringVal("a"),
+				cty.StringVal("b"),
+				cty.StringVal("c"),
+				cty.StringVal("d"),
+				cty.StringVal("e"),
+				cty.StringVal("f"),
+			}),
+		},
 		"single list": {
 			args: []cty.Value{
 				cty.ListVal([]cty.Value{
@@ -69,7 +105,7 @@ func TestConcat(t *testing.T) {
 					cty.StringVal("c"),
 				}),
 				cty.StringVal("d"),
-				cty.ListVal([]cty.Value{
+				cty.TupleVal([]cty.Value{
 					cty.StringVal("e"),
 				}),
 				cty.StringVal("f"),

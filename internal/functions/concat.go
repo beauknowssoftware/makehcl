@@ -15,15 +15,13 @@ func Concat(args []cty.Value, retType cty.Type) (cty.Value, error) {
 	var res []cty.Value
 
 	for _, a := range args {
-		ty := a.Type()
-
 		switch {
-		case ty == cty.List(cty.String):
+		case a.CanIterateElements():
 			res = append(res, a.AsValueSlice()...)
-		case ty == cty.String:
+		case a.Type() == cty.String:
 			res = append(res, a)
 		default:
-			return cty.UnknownVal(cty.List(cty.String)), fmt.Errorf("expected list of strings, got %v", ty.FriendlyName())
+			return cty.UnknownVal(cty.List(cty.String)), fmt.Errorf("expected list of strings, got %v", a.Type().FriendlyName())
 		}
 	}
 
