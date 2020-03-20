@@ -419,6 +419,13 @@ func TestRun(t *testing.T) {
 				"test2.txt": {},
 			},
 		},
+		"imports": {
+			folder: "testdata/imports",
+			want: map[filename]fileContents{
+				"test.txt":  {},
+				"test2.txt": {},
+			},
+		},
 		"dependencies": {
 			folder: "testdata/dependencies",
 			want: map[filename]fileContents{

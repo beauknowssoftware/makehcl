@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/pkg/errors"
 	"github.com/zclconf/go-cty/cty"
 
@@ -25,6 +26,9 @@ var (
 			},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
+			{
+				Type: "import",
+			},
 			{
 				Type: "opts",
 			},
@@ -49,19 +53,29 @@ var (
 	}
 )
 
-func getAllAttributes(blockType string, con *hcl.BodyContent) (map[string]*hcl.Attribute, error) {
-	attrs := make(map[string]*hcl.Attribute)
+func getAllBlocks(blockType string, con *hcl.BodyContent) []*hcl.Block {
+	var blocks []*hcl.Block
 
 	for _, blk := range con.Blocks {
 		if blk.Type == blockType {
-			attr, diag := blk.Body.JustAttributes()
-			if diag.HasErrors() {
-				return nil, errors.Wrapf(diag, "failed to get %v attributes", blockType)
-			}
+			blocks = append(blocks, blk)
+		}
+	}
 
-			for k, v := range attr {
-				attrs[k] = v
-			}
+	return blocks
+}
+
+func getAllAttributes(blockType string, con *hcl.BodyContent) (map[string]*hcl.Attribute, error) {
+	attrs := make(map[string]*hcl.Attribute)
+
+	for _, blk := range getAllBlocks(blockType, con) {
+		attr, diag := blk.Body.JustAttributes()
+		if diag.HasErrors() {
+			return nil, errors.Wrapf(diag, "failed to get %v attributes", blockType)
+		}
+
+		for k, v := range attr {
+			attrs[k] = v
 		}
 	}
 
@@ -269,8 +283,69 @@ func fillDynamicRules(con *hcl.BodyContent, d *definition.Definition, ctx *hcl.E
 	return nil
 }
 
+var (
+	importSchema = hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "file",
+				Required: true,
+			},
+		},
+	}
+)
+
+func executeImport(blk *hcl.Block, ctx *hcl.EvalContext) (hcl.Body, error) {
+	con, diag := blk.Body.Content(&importSchema)
+	if diag.HasErrors() {
+		return nil, diag
+	}
+
+	file, err := evaluateString(con.Attributes["file"].Expr, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	p := hclparse.NewParser()
+
+	f, diag := p.ParseHCLFile(file)
+	if diag.HasErrors() {
+		return nil, diag
+	}
+
+	return f.Body, nil
+}
+
+func executeImports(con *hcl.BodyContent, ctx *hcl.EvalContext) ([]hcl.Body, error) {
+	importBlocks := getAllBlocks("import", con)
+
+	bodies := make([]hcl.Body, 0, len(importBlocks))
+
+	for _, b := range importBlocks {
+		body, err := executeImport(b, ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		bodies = append(bodies, body)
+	}
+
+	return bodies, nil
+}
+
 func constructDefinition(f *hcl.File, ctx *hcl.EvalContext) (*definition.Definition, error) {
 	con, diag := f.Body.Content(&definitionSchema)
+	if diag.HasErrors() {
+		return nil, diag
+	}
+
+	bodies, err := executeImports(con, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	bodies = append(bodies, f.Body)
+
+	con, diag = hcl.MergeBodies(bodies).Content(&definitionSchema)
 	if diag.HasErrors() {
 		return nil, diag
 	}
