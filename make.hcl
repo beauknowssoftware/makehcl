@@ -83,4 +83,9 @@ rule {
   command = "goimports -w ."
 }
 
+command install {
+  dependencies = [".lint", ".test"]
+  command = "go install ./cmd/makehcl"
+}
+
 command clean { command = "git clean -f -fdX" }

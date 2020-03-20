@@ -35,6 +35,16 @@ func Exec() error {
 		return err
 	}
 
+	var completion CompletionCommand
+	_, err = p.AddCommand("completion",
+		"Show completion script",
+		"The completion command prints a script that can be used for shell completion",
+		&completion)
+
+	if err != nil {
+		return err
+	}
+
 	_, err = p.Parse()
 
 	return err
