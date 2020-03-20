@@ -8,6 +8,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.3.0
 	github.com/hashicorp/terraform v0.12.23
 	github.com/jessevdk/go-flags v1.4.0
+	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pkg/errors v0.9.1
 	github.com/zclconf/go-cty v1.3.1
 	github.com/zclconf/go-cty-yaml v1.0.1

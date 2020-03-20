@@ -130,15 +130,39 @@ func TestRun(t *testing.T) {
 		"simple": {
 			folder: "testdata/simple",
 			expected: plan.Plan{
-				"test.txt",
+				plan.Item{
+					Target: "test.txt",
+					Reason: plan.Reason{
+						Target:     "test.txt",
+						ReasonType: plan.DoesNotExist,
+					},
+				},
 			},
 		},
 		"dependencies": {
 			folder: "testdata/dependencies",
 			expected: plan.Plan{
-				"test2.txt",
-				"test.txt",
-				"test3.txt",
+				plan.Item{
+					Target: "test2.txt",
+					Reason: plan.Reason{
+						Target:     "test2.txt",
+						ReasonType: plan.DoesNotExist,
+					},
+				},
+				plan.Item{
+					Target: "test.txt",
+					Reason: plan.Reason{
+						Target:     "test.txt",
+						ReasonType: plan.DoesNotExist,
+					},
+				},
+				plan.Item{
+					Target: "test3.txt",
+					Reason: plan.Reason{
+						Target:     "test3.txt",
+						ReasonType: plan.DoesNotExist,
+					},
+				},
 			},
 		},
 		"existing files": {
@@ -147,8 +171,20 @@ func TestRun(t *testing.T) {
 				{"test2.txt": {}},
 			},
 			expected: plan.Plan{
-				"test.txt",
-				"test3.txt",
+				plan.Item{
+					Target: "test.txt",
+					Reason: plan.Reason{
+						Target:     "test.txt",
+						ReasonType: plan.DoesNotExist,
+					},
+				},
+				plan.Item{
+					Target: "test3.txt",
+					Reason: plan.Reason{
+						Target:     "test3.txt",
+						ReasonType: plan.DoesNotExist,
+					},
+				},
 			},
 		},
 		"ignore last modified": {
@@ -164,9 +200,9 @@ func TestRun(t *testing.T) {
 				{"test3.txt": {}},
 			},
 			expected: plan.Plan{
-				"test2.txt",
-				"test.txt",
-				"test3.txt",
+				plan.Item{Target: "test2.txt"},
+				plan.Item{Target: "test.txt"},
+				plan.Item{Target: "test3.txt"},
 			},
 		},
 		"out of date": {
@@ -178,8 +214,20 @@ func TestRun(t *testing.T) {
 				{"test2.txt": {}},
 			},
 			expected: plan.Plan{
-				"test.txt",
-				"test3.txt",
+				plan.Item{
+					Target: "test.txt",
+					Reason: plan.Reason{
+						Target:     "test2.txt",
+						ReasonType: plan.OlderThanDependency,
+					},
+				},
+				plan.Item{
+					Target: "test3.txt",
+					Reason: plan.Reason{
+						Target:     "test.txt",
+						ReasonType: plan.DependencyPlanned,
+					},
+				},
 			},
 		},
 	}

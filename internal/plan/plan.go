@@ -9,7 +9,24 @@ import (
 	"github.com/beauknowssoftware/makehcl/internal/parse"
 )
 
-type Plan []definition.Target
+const (
+	DoesNotExist        = ReasonType("does not exist")
+	OlderThanDependency = ReasonType("older than dependency")
+	DependencyPlanned   = ReasonType("dependency planned")
+)
+
+type ReasonType string
+
+type Reason struct {
+	Target     definition.Target
+	ReasonType ReasonType
+}
+
+type Item struct {
+	Target definition.Target
+	Reason Reason
+}
+type Plan []Item
 
 type Options struct {
 	Goal               definition.Goal
@@ -31,44 +48,92 @@ type planVisitor struct {
 	dt      map[definition.Target]*time.Time
 }
 
-func (v *planVisitor) visit(t definition.Target) error {
-	if v.visited[t] {
-		return nil
-	}
-
+func (v planVisitor) getTargetInfo(t definition.Target) (*definition.Rule, *time.Time, error) {
 	mt, err := file.ModTime(t)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	v.dt[t] = mt
 
 	r := v.d.Rule(t)
+	// if rule does not exist but there is a last modified time
+	// then we are looking at a pre-existing file dependency
 	if r == nil && mt != nil {
+		return nil, mt, nil
+	}
+
+	// if the rule does not exist, and there is no last modified time
+	// then we're missing a target
+	if r == nil {
+		return nil, nil, fmt.Errorf("unknown target %v", t)
+	}
+
+	return r, mt, nil
+}
+
+func (v *planVisitor) visitDependency(dep definition.Target, mt *time.Time) (*Reason, error) {
+	err := v.visit(dep)
+	if err != nil {
+		return nil, err
+	}
+
+	if v.visited[dep] {
+		return &Reason{dep, DependencyPlanned}, nil
+	} else if mt != nil && v.dt[dep].After(*mt) {
+		return &Reason{dep, OlderThanDependency}, nil
+	}
+
+	return nil, nil
+}
+
+func (v *planVisitor) visit(t definition.Target) error {
+	if v.visited[t] {
 		return nil
 	}
 
-	if r == nil {
-		return fmt.Errorf("unknown target %v", t)
+	r, mt, err := v.getTargetInfo(t)
+	if err != nil {
+		return err
 	}
 
-	shouldVisit := v.o.IgnoreLastModified || mt == nil // mt should only be null if file does not exist
+	if r == nil {
+		return nil
+	}
+
+	var reason *Reason
+
+	// mt should only be null if file does not exist
+	if mt == nil {
+		reason = &Reason{t, DoesNotExist}
+	}
 
 	for _, dep := range r.Dependencies {
-		err := v.visit(dep)
+		depReason, err := v.visitDependency(dep, mt)
 		if err != nil {
 			return err
 		}
 
-		shouldVisit = shouldVisit || v.visited[dep] || (mt != nil && v.dt[dep].After(*mt))
+		if reason == nil {
+			reason = depReason
+		}
 	}
 
-	if shouldVisit {
-		v.p = append(v.p, t)
-		v.visited[t] = true
-	}
+	v.finalizeVisit(t, reason)
 
 	return nil
+}
+
+func (v *planVisitor) finalizeVisit(t definition.Target, reason *Reason) {
+	if reason != nil || v.o.IgnoreLastModified {
+		i := Item{Target: t}
+		if reason != nil && !v.o.IgnoreLastModified {
+			i.Reason = *reason
+		}
+
+		v.p = append(v.p, i)
+		v.visited[t] = true
+	}
 }
 
 func Definition(d definition.Definition, o Options) (Plan, error) {

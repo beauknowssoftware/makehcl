@@ -33,7 +33,7 @@ func Do(o DoOptions) error {
 	}
 
 	for _, t := range p {
-		r := d.Rule(t)
+		r := d.Rule(t.Target)
 
 		if o.DryRun {
 			fmt.Println(r.Command)
@@ -46,7 +46,7 @@ func Do(o DoOptions) error {
 				shellFlags: d.ShellFlags,
 			}
 			if r.TeeTarget {
-				opts.teeTarget = &t
+				opts.teeTarget = &t.Target
 			}
 			if err := bash(r.Command, opts); err != nil {
 				return err
