@@ -27,6 +27,7 @@ var customFunctions = map[string]function.Function{
 	"glob":     function.New(&GlobSpec),
 	"path":     function.New(&PathSpec),
 	"concat":   function.New(&ConcatSpec),
+	"shell":    function.New(&ShellSpec),
 }
 
 func getTerraformFunctions(wd string) map[string]function.Function {

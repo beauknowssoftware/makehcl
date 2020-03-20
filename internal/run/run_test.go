@@ -285,6 +285,12 @@ func TestRun(t *testing.T) {
 				"test2.txt": {},
 			},
 		},
+		"shell": {
+			folder: "testdata/shell",
+			want: map[filename]fileContents{
+				"test.txt": {},
+			},
+		},
 		"touch": {
 			folder: "testdata/touch",
 			want: map[filename]fileContents{
