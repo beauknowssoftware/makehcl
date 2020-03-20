@@ -306,6 +306,12 @@ func TestRun(t *testing.T) {
 				"test.txt.4": fileContents("hello4\n"),
 			},
 		},
+		"single default": {
+			folder: "testdata/single_default",
+			want: map[filename]fileContents{
+				"test.txt": {},
+			},
+		},
 		"tee target": {
 			folder: "testdata/tee_target",
 			want: map[filename]fileContents{

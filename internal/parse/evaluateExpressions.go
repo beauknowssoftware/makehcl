@@ -40,6 +40,15 @@ func evaluateStringArray(expr hcl.Expression, ctx *hcl.EvalContext) ([]string, e
 	}
 
 	t := val.Type()
+	if t == cty.String {
+		s, err := evaluateString(expr, ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		return []string{s}, nil
+	}
+
 	if t.IsTupleType() {
 		ets := t.TupleElementTypes()
 		if ets == nil {
