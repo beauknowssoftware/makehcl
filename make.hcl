@@ -102,7 +102,7 @@ dynamic rule {
 }
 
 dynamic command {
-  alias = "installs"
+  alias = "install"
   for_each = var.cmds
   as = "cmd"
 
@@ -110,10 +110,6 @@ dynamic command {
   dependencies = [
     ".test"]
   command = "go install ./${cmd.path}"
-}
-
-command install {
-  dependencies = command.installs
 }
 
 command clean {
