@@ -3,6 +3,6 @@ var {
 }
 
 rule {
-  target = var.target
+  target  = var.target
   command = "echo hello > test.txt"
 }

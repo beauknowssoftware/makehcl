@@ -1,2 +1,2 @@
 go mod tidy
-hclfmt -w make.hcl
+find . -name *.hcl | xargs hclfmt -w

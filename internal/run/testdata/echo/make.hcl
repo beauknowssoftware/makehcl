@@ -1,4 +1,4 @@
 rule {
-  target = "test.txt"
+  target  = "test.txt"
   command = "echo hello > test.txt"
 }

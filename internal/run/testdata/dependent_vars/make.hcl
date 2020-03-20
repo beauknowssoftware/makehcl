@@ -6,7 +6,7 @@ var {
 
 var {
   target2 = join(".", [var.target, "2"])
-  target = "test.txt"
+  target  = "test.txt"
   target3 = join(".", [var.target, "3"])
 }
 
@@ -15,21 +15,21 @@ var {
 }
 
 rule {
-  target = var.target1
+  target  = var.target1
   command = "echo hello1 > ${target}"
 }
 
 rule {
-  target = var.target2
+  target  = var.target2
   command = "echo hello2 > ${target}"
 }
 
 rule {
-  target = var.target3
+  target  = var.target3
   command = "echo hello3 > ${target}"
 }
 
 rule {
-  target = var.target4
+  target  = var.target4
   command = "echo hello4 > ${target}"
 }

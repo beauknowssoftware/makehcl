@@ -1,4 +1,4 @@
 rule {
-  target = env.TARGET
+  target  = env.TARGET
   command = "echo hello > test.txt"
 }

@@ -5,11 +5,11 @@ var {
 }
 
 rule {
-  target = "test.txt"
+  target  = "test.txt"
   command = "touch ${target}"
 }
 
 rule {
-  target = "test2.txt"
+  target  = "test2.txt"
   command = "touch ${target}"
 }

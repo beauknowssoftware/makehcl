@@ -4,6 +4,6 @@ dynamic command {
   alias = "tests"
 
   for_each = ["test", "test2"]
-  name = command
-  command = "touch ${name}.txt"
+  name     = command
+  command  = "touch ${name}.txt"
 }

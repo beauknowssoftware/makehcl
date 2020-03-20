@@ -4,18 +4,18 @@ default_goal = [
 ]
 
 rule {
-  target = "test.txt"
-  command = "touch test.txt"
+  target       = "test.txt"
+  command      = "touch test.txt"
   dependencies = ["test3.txt"]
 }
 
 rule {
-  target = "test2.txt"
-  command = "touch test2.txt"
+  target       = "test2.txt"
+  command      = "touch test2.txt"
   dependencies = ["test3.txt"]
 }
 
 rule {
-  target = "test3.txt"
+  target  = "test3.txt"
   command = "echo hello >> test3.txt"
 }

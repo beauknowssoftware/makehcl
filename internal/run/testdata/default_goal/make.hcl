@@ -4,16 +4,16 @@ default_goal = [
 ]
 
 rule {
-  target = "test.txt"
+  target  = "test.txt"
   command = "touch test.txt"
 }
 
 rule {
-  target = "test2.txt"
+  target  = "test2.txt"
   command = "touch test2.txt"
 }
 
 rule {
-  target = "test3.txt"
+  target  = "test3.txt"
   command = "touch test3.txt"
 }

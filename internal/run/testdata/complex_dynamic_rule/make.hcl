@@ -4,12 +4,12 @@ var {
   names = ["test", "test2"]
   targets = [
     for name in var.names :
-    { target: join("", [name, ".txt"]) }
+    { target : join("", [name, ".txt"]) }
   ]
 }
 
 dynamic rule {
   for_each = var.targets
-  target = rule.target
-  command = "touch ${rule.target}"
+  target   = rule.target
+  command  = "touch ${rule.target}"
 }

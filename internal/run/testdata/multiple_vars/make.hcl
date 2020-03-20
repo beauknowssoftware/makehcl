@@ -9,11 +9,11 @@ var {
 }
 
 rule {
-  target = var.target1
+  target  = var.target1
   command = "echo hello1 > ${target}"
 }
 
 rule {
-  target = var.target2
+  target  = var.target2
   command = "echo hello2 > ${target}"
 }

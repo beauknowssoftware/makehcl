@@ -1,10 +1,10 @@
 default_goal = ["test"]
 
 dynamic rule {
-  alias = "tests"
+  alias    = "tests"
   for_each = ["test", "test2"]
-  target = join(".", [rule, "txt"])
-  command = "touch ${target}"
+  target   = join(".", [rule, "txt"])
+  command  = "touch ${target}"
 }
 
 command test {

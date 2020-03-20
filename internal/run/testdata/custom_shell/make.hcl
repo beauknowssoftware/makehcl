@@ -1,9 +1,9 @@
 opts {
-  shell = "touch"
+  shell       = "touch"
   shell_flags = ""
 }
 
 rule {
-  target = "test.txt"
+  target  = "test.txt"
   command = "${target}"
 }

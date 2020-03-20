@@ -8,6 +8,6 @@ command touch {
 }
 
 rule {
-  target = "test2.txt"
+  target  = "test2.txt"
   command = "touch test2.txt"
 }

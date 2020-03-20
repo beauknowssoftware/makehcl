@@ -1,5 +1,5 @@
 rule {
-  target = "test.txt"
+  target     = "test.txt"
   tee_target = true
-  command = "echo hello"
+  command    = "echo hello"
 }
