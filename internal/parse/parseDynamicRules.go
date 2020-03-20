@@ -38,7 +38,7 @@ func constructDynamicRules(blk *hcl.Block, ctx *hcl.EvalContext) (*dynamicRule, 
 		return nil, diag
 	}
 
-	forEach, err := evaluateValueArray(con.Attributes["for_each"].Expr, ctx)
+	forEach, err := evaluateIterable(con.Attributes["for_each"].Expr, ctx)
 	if err != nil {
 		err = errors.Wrap(err, "failed to evaluate for_each")
 		return nil, err

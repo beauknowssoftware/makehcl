@@ -264,6 +264,13 @@ func TestRun(t *testing.T) {
 				"test2.txt": {},
 			},
 		},
+		"dynamic rule object": {
+			folder: "testdata/dynamic_rule_object",
+			want: map[filename]fileContents{
+				"test.txt":  {},
+				"test2.txt": {},
+			},
+		},
 		"dynamic rule": {
 			folder: "testdata/dynamic_rule",
 			want: map[filename]fileContents{

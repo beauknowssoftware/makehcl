@@ -87,6 +87,19 @@ func evaluateStringArray(expr hcl.Expression, ctx *hcl.EvalContext) ([]string, e
 	return result, nil
 }
 
+func evaluateIterable(expr hcl.Expression, ctx *hcl.EvalContext) ([]cty.Value, error) {
+	val, diag := expr.Value(ctx)
+	if diag.HasErrors() {
+		return nil, diag
+	}
+
+	if !val.CanIterateElements() {
+		return nil, fmt.Errorf("expected an iterable type, got %v", val.Type().FriendlyName())
+	}
+
+	return val.AsValueSlice(), nil
+}
+
 func evaluateValueArray(expr hcl.Expression, ctx *hcl.EvalContext) ([]cty.Value, error) {
 	val, diag := expr.Value(ctx)
 	if diag.HasErrors() {
