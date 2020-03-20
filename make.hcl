@@ -1,4 +1,4 @@
-default_goal = concat(rule.bins, rule.env_bins, [".lint"])
+default_goal = concat(rule.bins, rule.env_bins, ".lint")
 
 // show all commands if in debug mode
 var {
@@ -20,27 +20,29 @@ rule {
   target = ".import"
   tee_target = true
   command = "goimports -w ."
-  dependencies = concat(
-  glob("**.go"),
-  ["go.mod", "go.sum"],
-  )
+  dependencies = concat(glob("**.go"), "go.mod", "go.sum")
 }
 rule {
   target = ".test"
   tee_target = true
-  dependencies = concat([".import"], glob("**/testdata/**"))
+  dependencies = concat(".import", glob("**/testdata/**"))
   command = "go test -count=1 ./..."
 }
 rule {
   target = ".lint"
   tee_target = true
-  dependencies = [".test"]
+  dependencies = [
+    ".test"]
   command = "golangci-lint run --fix"
 }
 
 // local executable binaries
 var {
-  cmds = [for cmd in glob("cmd/*") : { path: cmd, bin: path("bin/", basename(cmd)), name: basename(cmd) }]
+  cmds = [for cmd in glob("cmd/*") : {
+    path: cmd,
+    bin: path("bin/", basename(cmd)),
+    name: basename(cmd)
+  }]
 }
 dynamic rule {
   alias = "bins"
@@ -48,22 +50,39 @@ dynamic rule {
   as = "cmd"
 
   target = cmd.bin
-  dependencies = [".test"]
+  dependencies = [
+    ".test"]
   command = "go build -o ${target} ./${cmd.path}"
 }
 
 // cross platform binaries
 var {
   go_envs = [
-    { goos: "darwin", goarch: "386" },
-    { goos: "darwin", goarch: "amd64" },
-    { goos: "linux", goarch: "386" },
-    { goos: "linux", goarch: "amd64" },
+    {
+      goos: "darwin",
+      goarch: "386"
+    },
+    {
+      goos: "darwin",
+      goarch: "amd64"
+    },
+    {
+      goos: "linux",
+      goarch: "386"
+    },
+    {
+      goos: "linux",
+      goarch: "amd64"
+    },
   ]
   env_cmds = flatten([
-    for cmd in var.cmds : [
-      for env in var.go_envs : { path: cmd.path, bin: path("bin/", env.goos, env.goarch, basename(cmd.path)), env: env, }
-    ]
+  for cmd in var.cmds : [
+  for env in var.go_envs : {
+    path: cmd.path,
+    bin: path("bin/", env.goos, env.goarch, basename(cmd.path)),
+    env: env,
+  }
+  ]
   ])
 }
 dynamic rule {
@@ -72,7 +91,8 @@ dynamic rule {
   as = "cmd"
 
   target = cmd.bin
-  dependencies = [".test"]
+  dependencies = [
+    ".test"]
   command = "go build -o ${target} ./${cmd.path}"
 
   environment = {
@@ -87,7 +107,8 @@ dynamic command {
   as = "cmd"
 
   name = "install_${cmd.name}"
-  dependencies = [".test"]
+  dependencies = [
+    ".test"]
   command = "go install ./${cmd.path}"
 }
 
@@ -95,4 +116,6 @@ command install {
   dependencies = command.installs
 }
 
-command clean { command = "git clean -f -fdX" }
+command clean {
+  command = "git clean -f -fdX"
+}

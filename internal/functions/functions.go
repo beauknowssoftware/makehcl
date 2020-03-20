@@ -26,6 +26,7 @@ var customFunctions = map[string]function.Function{
 	"filename": function.New(&FilenameSpec),
 	"glob":     function.New(&GlobSpec),
 	"path":     function.New(&PathSpec),
+	"concat":   function.New(&ConcatSpec),
 }
 
 func getTerraformFunctions(wd string) map[string]function.Function {
@@ -49,7 +50,6 @@ func getTerraformFunctions(wd string) map[string]function.Function {
 		"coalesce":         funcs.CoalesceFunc,
 		"coalescelist":     stdlib.CoalesceListFunc,
 		"compact":          stdlib.CompactFunc,
-		"concat":           stdlib.ConcatFunc,
 		"contains":         stdlib.ContainsFunc,
 		"csvdecode":        stdlib.CSVDecodeFunc,
 		"dirname":          funcs.DirnameFunc,
