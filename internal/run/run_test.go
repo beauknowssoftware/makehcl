@@ -229,8 +229,22 @@ func TestRun(t *testing.T) {
 				"test2.txt": {},
 			},
 		},
+		"dynamic command alias target": {
+			folder: "testdata/dynamic_command_alias_target",
+			want: map[filename]fileContents{
+				"test.txt":  {},
+				"test2.txt": {},
+			},
+		},
 		"dynamic command default": {
 			folder: "testdata/dynamic_command_default",
+			want: map[filename]fileContents{
+				"test.txt":  {},
+				"test2.txt": {},
+			},
+		},
+		"dynamic rule alias target": {
+			folder: "testdata/dynamic_rule_alias_target",
 			want: map[filename]fileContents{
 				"test.txt":  {},
 				"test2.txt": {},
