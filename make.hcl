@@ -29,10 +29,10 @@ rule {
   command      = "go test -count=1 ./..."
 }
 rule {
-  target     = ".lint"
-  tee_target = true
+  target       = ".lint"
+  tee_target   = true
   dependencies = ".test"
-  command = "golangci-lint run --fix"
+  command      = "golangci-lint run --fix"
 }
 
 // local executable binaries
@@ -48,9 +48,9 @@ dynamic rule {
   for_each = var.cmds
   as       = "cmd"
 
-  target = cmd.bin
+  target       = cmd.bin
   dependencies = ".test"
-  command = "go build -o ${target} ./${cmd.path}"
+  command      = "go build -o ${target} ./${cmd.path}"
 }
 
 // cross platform binaries
@@ -88,9 +88,9 @@ dynamic rule {
   for_each = var.env_cmds
   as       = "cmd"
 
-  target = cmd.bin
+  target       = cmd.bin
   dependencies = ".test"
-  command = "go build -o ${target} ./${cmd.path}"
+  command      = "go build -o ${target} ./${cmd.path}"
 
   environment = {
     GOOS   = cmd.env.goos
@@ -103,11 +103,15 @@ dynamic command {
   for_each = var.cmds
   as       = "cmd"
 
-  name = "install_${cmd.name}"
+  name         = "install_${cmd.name}"
   dependencies = ".test"
-  command = "go install ./${cmd.path}"
+  command      = "go install ./${cmd.path}"
 }
 
 command clean {
   command = "git clean -f -fdX"
+}
+
+command tidy {
+  command = file("tidy.sh")
 }
