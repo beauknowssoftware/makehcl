@@ -9,13 +9,14 @@ import (
 type PlanCommand struct {
 	Filename string `short:"f" long:"filename"`
 	All      bool   `short:"a" long:"all"`
+	Goal     Goal   `positional-args:"yes"`
 }
 
-func (c *PlanCommand) Execute(args []string) error {
+func (c *PlanCommand) Execute(_ []string) error {
 	var o plan.DoOptions
 	o.Filename = c.Filename
 	o.IgnoreLastModified = c.All
-	o.Goal = args
+	o.Goal = c.Goal.Targets
 
 	p, err := plan.Do(o)
 	if err != nil {

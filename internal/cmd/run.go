@@ -7,15 +7,16 @@ type RunCommand struct {
 	Verbose  bool   `short:"v" long:"verbose"`
 	All      bool   `short:"a" long:"all"`
 	DryRun   bool   `short:"d" long:"dry-run"`
+	Goal     Goal   `positional-args:"yes"`
 }
 
-func (c *RunCommand) Execute(args []string) error {
+func (c *RunCommand) Execute(_ []string) error {
 	var o run.DoOptions
 	o.Filename = c.Filename
 	o.Verbose = c.Verbose
 	o.IgnoreLastModified = c.All
 	o.DryRun = c.DryRun
-	o.Goal = args
+	o.Goal = c.Goal.Targets
 
 	return run.Do(o)
 }
