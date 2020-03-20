@@ -2,8 +2,8 @@
 rule {
   target       = ".import"
   tee_target   = true
-  command      = "goimports -w ."
-  dependencies = concat(glob("**.go"), "go.mod", "go.sum")
+  command      = "tools/goimports -w ."
+  dependencies = concat(glob("**.go"), "go.mod", "go.sum", "tools/goimports")
 }
 rule {
   target       = ".test"
@@ -14,6 +14,6 @@ rule {
 rule {
   target       = ".lint"
   tee_target   = true
-  dependencies = ".test"
-  command      = "golangci-lint run --fix"
+  dependencies = [".test", "tools/golangci-lint"]
+  command      = "tools/golangci-lint run --fix"
 }

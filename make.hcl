@@ -1,4 +1,8 @@
-default_goal = concat(rule.bins, rule.env_bins, ".lint")
+default_goal = "build"
+
+command build {
+  dependencies = concat(rule.bins, rule.env_bins, ".lint")
+}
 
 import {
   file = "build/tools.hcl"
@@ -33,6 +37,6 @@ command clean {
 }
 
 command tidy {
-  dependencies = ["bin/hclfmt"]
-  command      = file("tidy.sh")
+  dependencies = ["tools/hclfmt"]
+  command      = file("build/tidy.sh")
 }
