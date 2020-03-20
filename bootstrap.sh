@@ -1,2 +1,2 @@
-go install ./cmd/makehcl
-makehcl run -v
+go run ./cmd/makehcl run -v
+go run ./cmd/makehcl run install
