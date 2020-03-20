@@ -1,38 +1,59 @@
-default_goal = concat(var.bins, var.env_bins)
+default_goal = concat(rule.bins, rule.env_bins)
 
+// show all commands if in debug mode
 var {
   is_debug = exists(env, "DEBUG")
-  go_deps = concat(
-    glob("**.go"),
-    glob("**/testdata/**"),
-    ["go.mod", "go.sum"],
-  )
 }
-
 opts {
   shell = "/bin/bash"
   shell_flags = var.is_debug ? "-xuec" : "-uec"
 }
 
+// common go build variables
 env {
   GOSUMDB = "off"
   GOPROXY = "direct"
 }
 
+// go prebuild
+rule {
+  target = ".import"
+  tee_target = true
+  command = "goimports -w ."
+  dependencies = concat(
+  glob("**.go"),
+  ["go.mod", "go.sum"],
+  )
+}
+rule {
+  target = ".test"
+  tee_target = true
+  dependencies = concat([".import"], glob("**/testdata/**"))
+  command = "go test -count=1 ./..."
+}
+rule {
+  target = ".lint"
+  tee_target = true
+  dependencies = [".test"]
+  command = "golangci-lint run --fix"
+}
+
+// local executable binaries
 var {
   cmds = [for cmd in glob("cmd/*") : { path: cmd, bin: path("bin/", basename(cmd)) }]
   bins = [for cmd in var.cmds : cmd.bin]
 }
-
 dynamic rule {
+  alias = "bins"
   for_each = var.cmds
   as = "cmd"
 
   target = cmd.bin
-  dependencies = concat(var.go_deps, [".test", ".lint"])
+  dependencies = [".test"]
   command = "go build -o ${target} ./${cmd.path}"
 }
 
+// cross platform binaries
 var {
   go_envs = [
     { goos: "darwin", goarch: "386" },
@@ -47,13 +68,13 @@ var {
   ])
   env_bins = [for cmd in var.env_cmds : cmd.bin]
 }
-
 dynamic rule {
+  alias = "env_bins"
   for_each = var.env_cmds
   as = "cmd"
 
   target = cmd.bin
-  dependencies = concat(var.go_deps, [".test", ".lint"])
+  dependencies = [".test"]
   command = "go build -o ${target} ./${cmd.path}"
 
   environment = {
@@ -62,29 +83,8 @@ dynamic rule {
   }
 }
 
-rule {
-  target = ".test"
-  tee_target = true
-  dependencies = concat(var.go_deps, [".import"])
-  command = "go test -count=1 ./..."
-}
-
-rule {
-  target = ".lint"
-  tee_target = true
-  dependencies = concat(var.go_deps, [".import", ".test"])
-  command = "golangci-lint run --fix"
-}
-
-rule {
-  target = ".import"
-  tee_target = true
-  dependencies = var.go_deps
-  command = "goimports -w ."
-}
-
 command install {
-  dependencies = [".lint", ".test"]
+  dependencies = [".test"]
   command = "go install ./cmd/makehcl"
 }
 

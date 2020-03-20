@@ -23,8 +23,8 @@ type Reason struct {
 }
 
 type Item struct {
-	Target definition.Target
-	Reason Reason
+	Target  definition.Target
+	Reasons []Reason
 }
 type Plan []Item
 
@@ -101,11 +101,12 @@ func (v *planVisitor) visit(t definition.Target) error {
 		return nil
 	}
 
-	var reason *Reason
+	var reasons []Reason
 
 	// mt should only be null if file does not exist
 	if mt == nil {
-		reason = &Reason{t, DoesNotExist}
+		reason := Reason{t, DoesNotExist}
+		reasons = append(reasons, reason)
 	}
 
 	for _, dep := range r.Dependencies {
@@ -114,21 +115,22 @@ func (v *planVisitor) visit(t definition.Target) error {
 			return err
 		}
 
-		if reason == nil {
-			reason = depReason
+		// we only care about the dependency reason if the target exists
+		if depReason != nil && mt != nil {
+			reasons = append(reasons, *depReason)
 		}
 	}
 
-	v.finalizeVisit(t, reason)
+	v.finalizeVisit(t, reasons)
 
 	return nil
 }
 
-func (v *planVisitor) finalizeVisit(t definition.Target, reason *Reason) {
-	if reason != nil || v.o.IgnoreLastModified {
+func (v *planVisitor) finalizeVisit(t definition.Target, reasons []Reason) {
+	if len(reasons) > 0 || v.o.IgnoreLastModified {
 		i := Item{Target: t}
-		if reason != nil && !v.o.IgnoreLastModified {
-			i.Reason = *reason
+		if !v.o.IgnoreLastModified {
+			i.Reasons = reasons
 		}
 
 		v.p = append(v.p, i)

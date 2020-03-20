@@ -54,20 +54,25 @@ func (c *PlanCommand) Execute(_ []string) error {
 func printReasonTable(p plan.Plan) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Target", "Reason"})
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	/*
+		table.SetAutoWrapText(false)
+		table.SetAutoFormatHeaders(true)
+		table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+		table.SetAlignment(tablewriter.ALIGN_LEFT)
+		table.SetCenterSeparator("")
+		table.SetColumnSeparator("")
+		table.SetRowSeparator("")
+		table.SetHeaderLine(false)
+		table.SetBorder(false)
+		table.SetTablePadding("\t") // pad with tabs
+		table.SetNoWhiteSpace(true)
+	*/
+	table.SetRowLine(true)
 
 	for _, e := range p {
-		table.Append([]string{e.Target, reasonDescription(e.Reason)})
+		for _, r := range e.Reasons {
+			table.Append([]string{e.Target, reasonDescription(r)})
+		}
 	}
 
 	table.Render()

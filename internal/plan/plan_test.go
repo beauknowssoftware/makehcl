@@ -132,9 +132,11 @@ func TestRun(t *testing.T) {
 			expected: plan.Plan{
 				plan.Item{
 					Target: "test.txt",
-					Reason: plan.Reason{
-						Target:     "test.txt",
-						ReasonType: plan.DoesNotExist,
+					Reasons: []plan.Reason{
+						{
+							Target:     "test.txt",
+							ReasonType: plan.DoesNotExist,
+						},
 					},
 				},
 			},
@@ -144,23 +146,29 @@ func TestRun(t *testing.T) {
 			expected: plan.Plan{
 				plan.Item{
 					Target: "test2.txt",
-					Reason: plan.Reason{
-						Target:     "test2.txt",
-						ReasonType: plan.DoesNotExist,
+					Reasons: []plan.Reason{
+						{
+							Target:     "test2.txt",
+							ReasonType: plan.DoesNotExist,
+						},
 					},
 				},
 				plan.Item{
 					Target: "test.txt",
-					Reason: plan.Reason{
-						Target:     "test.txt",
-						ReasonType: plan.DoesNotExist,
+					Reasons: []plan.Reason{
+						{
+							Target:     "test.txt",
+							ReasonType: plan.DoesNotExist,
+						},
 					},
 				},
 				plan.Item{
 					Target: "test3.txt",
-					Reason: plan.Reason{
-						Target:     "test3.txt",
-						ReasonType: plan.DoesNotExist,
+					Reasons: []plan.Reason{
+						{
+							Target:     "test3.txt",
+							ReasonType: plan.DoesNotExist,
+						},
 					},
 				},
 			},
@@ -173,16 +181,20 @@ func TestRun(t *testing.T) {
 			expected: plan.Plan{
 				plan.Item{
 					Target: "test.txt",
-					Reason: plan.Reason{
-						Target:     "test.txt",
-						ReasonType: plan.DoesNotExist,
+					Reasons: []plan.Reason{
+						{
+							Target:     "test.txt",
+							ReasonType: plan.DoesNotExist,
+						},
 					},
 				},
 				plan.Item{
 					Target: "test3.txt",
-					Reason: plan.Reason{
-						Target:     "test3.txt",
-						ReasonType: plan.DoesNotExist,
+					Reasons: []plan.Reason{
+						{
+							Target:     "test3.txt",
+							ReasonType: plan.DoesNotExist,
+						},
 					},
 				},
 			},
@@ -216,16 +228,45 @@ func TestRun(t *testing.T) {
 			expected: plan.Plan{
 				plan.Item{
 					Target: "test.txt",
-					Reason: plan.Reason{
-						Target:     "test2.txt",
-						ReasonType: plan.OlderThanDependency,
+					Reasons: []plan.Reason{
+						{
+							Target:     "test2.txt",
+							ReasonType: plan.OlderThanDependency,
+						},
 					},
 				},
 				plan.Item{
 					Target: "test3.txt",
-					Reason: plan.Reason{
-						Target:     "test.txt",
-						ReasonType: plan.DependencyPlanned,
+					Reasons: []plan.Reason{
+						{
+							Target:     "test.txt",
+							ReasonType: plan.DependencyPlanned,
+						},
+					},
+				},
+			},
+		},
+		"multiple reasons": {
+			folder: "testdata/multiple_reasons",
+			existing: []map[filename]fileContents{
+				{"test3.txt": {}},
+				{"test2.txt": {}},
+				{"test.txt": {}},
+				{"test3.txt": {}},
+				{"test2.txt": {}},
+			},
+			expected: plan.Plan{
+				plan.Item{
+					Target: "test.txt",
+					Reasons: []plan.Reason{
+						{
+							Target:     "test2.txt",
+							ReasonType: plan.OlderThanDependency,
+						},
+						{
+							Target:     "test3.txt",
+							ReasonType: plan.OlderThanDependency,
+						},
 					},
 				},
 			},
