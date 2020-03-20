@@ -35,9 +35,9 @@ func Do(o DoOptions) error {
 	for _, t := range p {
 		r := d.Rule(t.Target)
 
-		if o.DryRun {
+		if o.DryRun && r.Command != "" {
 			fmt.Println(r.Command)
-		} else {
+		} else if r.Command != "" {
 			opts := bashOpts{
 				verbose:    o.Verbose,
 				env:        r.Environment,

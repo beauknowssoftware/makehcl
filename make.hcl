@@ -1,4 +1,4 @@
-default_goal = concat(rule.bins, rule.env_bins)
+default_goal = concat(rule.bins, rule.env_bins, [".lint"])
 
 // show all commands if in debug mode
 var {
@@ -40,8 +40,7 @@ rule {
 
 // local executable binaries
 var {
-  cmds = [for cmd in glob("cmd/*") : { path: cmd, bin: path("bin/", basename(cmd)) }]
-  bins = [for cmd in var.cmds : cmd.bin]
+  cmds = [for cmd in glob("cmd/*") : { path: cmd, bin: path("bin/", basename(cmd)), name: basename(cmd) }]
 }
 dynamic rule {
   alias = "bins"
@@ -66,7 +65,6 @@ var {
       for env in var.go_envs : { path: cmd.path, bin: path("bin/", env.goos, env.goarch, basename(cmd.path)), env: env, }
     ]
   ])
-  env_bins = [for cmd in var.env_cmds : cmd.bin]
 }
 dynamic rule {
   alias = "env_bins"
@@ -83,9 +81,18 @@ dynamic rule {
   }
 }
 
-command install {
+dynamic command {
+  alias = "installs"
+  for_each = var.cmds
+  as = "cmd"
+
+  name = "install_${cmd.name}"
   dependencies = [".test"]
-  command = "go install ./cmd/makehcl"
+  command = "go install ./${cmd.path}"
+}
+
+command install {
+  dependencies = command.installs
 }
 
 command clean { command = "git clean -f -fdX" }
