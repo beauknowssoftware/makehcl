@@ -151,6 +151,24 @@ func TestDo(t *testing.T) {
 				},
 			},
 		},
+		"commands": {
+			folder: "testdata/commands",
+			definition: parse2.Definition{
+				Files: map[string]*parse2.File{
+					"make.hcl": {
+						Name: "make.hcl",
+						CommandBlocks: []*parse2.CommandBlock{
+							{
+								Name: "test",
+								Command: &parse2.StringArray{
+									Value: []string{"touch test.txt"},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		"rules": {
 			folder: "testdata/rules",
 			definition: parse2.Definition{
@@ -331,6 +349,7 @@ func TestDo(t *testing.T) {
 		parse2.File{},
 		parse2.ImportBlock{},
 		parse2.RuleBlock{},
+		parse2.CommandBlock{},
 		parse2.String{},
 		parse2.StringArray{},
 	)

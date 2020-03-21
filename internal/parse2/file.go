@@ -11,10 +11,15 @@ var (
 			importBlockHeaderSchema,
 		},
 	}
-	ruleBlockHeaderSchema = hcl.BlockHeaderSchema{Type: "rule"}
-	varBlockHeaderSchema  = hcl.BlockHeaderSchema{Type: "var"}
-	attributeStageSchema  = &hcl.BodySchema{
+	ruleBlockHeaderSchema    = hcl.BlockHeaderSchema{Type: "rule"}
+	commandBlockHeaderSchema = hcl.BlockHeaderSchema{
+		Type:       "command",
+		LabelNames: []string{"name"},
+	}
+	varBlockHeaderSchema = hcl.BlockHeaderSchema{Type: "var"}
+	attributeStageSchema = &hcl.BodySchema{
 		Blocks: []hcl.BlockHeaderSchema{
+			commandBlockHeaderSchema,
 			ruleBlockHeaderSchema,
 			varBlockHeaderSchema,
 		},
@@ -28,6 +33,7 @@ type File struct {
 	content         *hcl.BodyContent
 	ImportBlocks    []*ImportBlock
 	RuleBlocks      []*RuleBlock
+	CommandBlocks   []*CommandBlock
 	varBlocks       []*varBlock
 	attributes      []attribute
 }
@@ -78,6 +84,15 @@ func (f *File) enumerateAttributes(gs scope) hcl.Diagnostics {
 
 	for _, blk := range f.content.Blocks {
 		switch blk.Type {
+		case commandBlockHeaderSchema.Type:
+			cBlk := CommandBlock{block: blk}
+			f.CommandBlocks = append(f.CommandBlocks, &cBlk)
+
+			if diag := cBlk.initAttributes(gs); diag.HasErrors() {
+				result = result.Extend(diag)
+			}
+
+			f.attributes = append(f.attributes, cBlk.attributes...)
 		case ruleBlockHeaderSchema.Type:
 			rBlk := RuleBlock{block: blk}
 			f.RuleBlocks = append(f.RuleBlocks, &rBlk)
