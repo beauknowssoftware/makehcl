@@ -26,7 +26,7 @@ type File struct {
 	content         *hcl.BodyContent
 	ImportBlocks    []*ImportBlock
 	RuleBlocks      []*RuleBlock
-	attributes      []fillable
+	attributes      []attribute
 }
 
 func (f File) HasContents() bool {

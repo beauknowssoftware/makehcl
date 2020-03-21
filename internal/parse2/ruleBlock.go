@@ -7,7 +7,7 @@ type RuleBlock struct {
 	content    *hcl.BodyContent
 	Target     *String
 	Command    *StringArray
-	attributes []fillable
+	attributes []attribute
 }
 
 var (
@@ -30,16 +30,18 @@ func (blk *RuleBlock) initAttributes() hcl.Diagnostics {
 
 	blk.content = con
 
-	blk.attributes = make([]fillable, 0, len(con.Attributes))
+	blk.attributes = make([]attribute, 0, len(con.Attributes))
 
 	for _, attr := range con.Attributes {
 		switch attr.Name {
 		case ruleTargetAttributeSchema.Name:
 			blk.Target = &String{attribute: attr}
-			blk.attributes = append(blk.attributes, blk.Target)
+			attr := attribute{blk.Target}
+			blk.attributes = append(blk.attributes, attr)
 		case ruleCommandAttributeSchema.Name:
 			blk.Command = &StringArray{attribute: attr}
-			blk.attributes = append(blk.attributes, blk.Command)
+			attr := attribute{blk.Command}
+			blk.attributes = append(blk.attributes, attr)
 		}
 	}
 
