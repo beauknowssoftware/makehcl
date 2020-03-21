@@ -55,6 +55,30 @@ func TestDo(t *testing.T) {
 		definition parse2.Definition
 		error      string
 	}{
+		"filename": {
+			folder: "testdata/filename",
+			options: parse2.Options{
+				Filename: "filename.hcl",
+			},
+			definition: parse2.Definition{
+				Files: map[string]*parse2.File{
+					"filename.hcl": {
+						Name: "filename.hcl",
+					},
+				},
+			},
+		},
+		"missing file": {
+			folder: "testdata/missing_file",
+			error:  "<nil>: Failed to read file; The configuration file \"make.hcl\" could not be read.",
+			definition: parse2.Definition{
+				Files: map[string]*parse2.File{
+					"make.hcl": {
+						Name: "make.hcl",
+					},
+				},
+			},
+		},
 		"empty": {
 			folder: "testdata/empty",
 			definition: parse2.Definition{
