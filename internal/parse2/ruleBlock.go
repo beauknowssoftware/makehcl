@@ -39,11 +39,18 @@ func (blk *RuleBlock) initAttributes(gs scope) hcl.Diagnostics {
 		switch attr.Name {
 		case ruleTargetAttributeSchema.Name:
 			blk.Target = &String{attribute: attr}
-			attr := attribute{name: "target", fillable: blk.Target, scope: blk.scope}
+			attr := attribute{
+				name:     "target",
+				fillable: blk.Target,
+				scope:    blk.scope,
+			}
 			blk.attributes = append(blk.attributes, attr)
 		case ruleCommandAttributeSchema.Name:
 			blk.Command = &StringArray{attribute: attr}
-			attr := attribute{fillable: blk.Command, scope: blk.scope}
+			attr := attribute{
+				fillable: blk.Command,
+				scope:    blk.scope,
+			}
 			blk.attributes = append(blk.attributes, attr)
 		}
 	}

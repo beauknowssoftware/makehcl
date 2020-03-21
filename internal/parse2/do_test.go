@@ -111,6 +111,26 @@ func TestDo(t *testing.T) {
 				},
 			},
 		},
+		"rule target var": {
+			folder: "testdata/rule_target_var",
+			definition: parse2.Definition{
+				Files: map[string]*parse2.File{
+					"make.hcl": {
+						Name: "make.hcl",
+						RuleBlocks: []*parse2.RuleBlock{
+							{
+								Target: &parse2.String{
+									Value: "test.txt",
+								},
+								Command: &parse2.StringArray{
+									Value: []string{"touch test.txt"},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		"rules": {
 			folder: "testdata/rules",
 			definition: parse2.Definition{
