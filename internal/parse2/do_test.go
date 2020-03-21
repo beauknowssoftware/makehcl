@@ -79,6 +79,27 @@ func TestDo(t *testing.T) {
 				},
 			},
 		},
+		"missing import": {
+			folder: "testdata/missing_import",
+			error:  "<nil>: Failed to read file; The configuration file \"import.hcl\" could not be read.",
+			definition: parse2.Definition{
+				Files: map[string]*parse2.File{
+					"make.hcl": {
+						Name: "make.hcl",
+						ImportBlocks: []*parse2.ImportBlock{
+							{
+								File: &parse2.StringAttribute{
+									Value: "import.hcl",
+								},
+							},
+						},
+					},
+					"import.hcl": {
+						Name: "import.hcl",
+					},
+				},
+			},
+		},
 		"empty": {
 			folder: "testdata/empty",
 			definition: parse2.Definition{
