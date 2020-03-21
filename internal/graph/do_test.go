@@ -108,6 +108,22 @@ func TestDo(t *testing.T) {
 				"n2 -> n1;" +
 				"}",
 		},
+		"diamond imports": {
+			folder: "testdata/diamond_imports",
+			options: graph.Options{
+				GraphType: graph.ImportGraph,
+			},
+			expected: "digraph {" +
+				"n1 [label=\"diamond.hcl\"];" +
+				"n2 [label=\"import.hcl\"];" +
+				"n3 [label=\"make.hcl\"];" +
+				"n4 [label=\"nested.hcl\"];" +
+				"n1 -> n4;" +
+				"n2 -> n4;" +
+				"n3 -> n1;" +
+				"n3 -> n2;" +
+				"}",
+		},
 	}
 
 	for name, test := range tests {

@@ -46,12 +46,8 @@ func constructImportGraph(d *parse2.Definition) *Graph {
 
 		sort.Strings(imports)
 
-		for _, imp := range f.ImportBlocks {
-			if imp.File == nil {
-				continue
-			}
-
-			n2 := nodeMap[imp.File.Value]
+		for _, imp := range imports {
+			n2 := nodeMap[imp]
 			g.Edge(n1, n2)
 		}
 	}
