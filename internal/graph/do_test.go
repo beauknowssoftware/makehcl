@@ -108,6 +108,18 @@ func TestDo(t *testing.T) {
 				"n2 -> n1;" +
 				"}",
 		},
+		"import loop": {
+			folder: "testdata/import_loop",
+			options: graph.Options{
+				GraphType: graph.ImportGraph,
+			},
+			expected: "digraph {" +
+				"n1 [label=\"import.hcl\"];" +
+				"n2 [label=\"make.hcl\"];" +
+				"n1 -> n2;" +
+				"n2 -> n1;" +
+				"}",
+		},
 		"diamond imports": {
 			folder: "testdata/diamond_imports",
 			options: graph.Options{
