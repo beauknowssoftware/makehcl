@@ -93,7 +93,12 @@ func (p *Parser) enumerateAttributes() hcl.Diagnostics {
 func (p *Parser) fillAttributes(ctx *hcl.EvalContext) hcl.Diagnostics {
 	var result hcl.Diagnostics
 
-	for _, a := range p.attributes {
+	s := attributeSorter{attributes: p.attributes}
+	s.sort()
+
+	for _, a := range s.sorted {
+		fmt.Printf("filling %v\n", a.name)
+
 		diag := a.fill(ctx)
 		if diag.HasErrors() {
 			result = result.Extend(diag)

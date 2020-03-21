@@ -63,15 +63,17 @@ func (f *File) enumerateImportBlocks(ctx *hcl.EvalContext) (result hcl.Diagnosti
 	return
 }
 
-func (f *File) enumerateAttributes(gs scope) (result hcl.Diagnostics) {
+func (f *File) enumerateAttributes(gs scope) hcl.Diagnostics {
+	var result hcl.Diagnostics
+
 	if f.unprocessedBody == nil {
-		return
+		return result
 	}
 
 	f.content, f.unprocessedBody, result = f.unprocessedBody.PartialContent(attributeStageSchema)
 
 	if f.content == nil {
-		return
+		return result
 	}
 
 	for _, blk := range f.content.Blocks {
@@ -97,5 +99,5 @@ func (f *File) enumerateAttributes(gs scope) (result hcl.Diagnostics) {
 		}
 	}
 
-	return
+	return result
 }

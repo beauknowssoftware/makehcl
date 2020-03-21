@@ -1,6 +1,10 @@
 package parse2
 
-import "github.com/hashicorp/hcl/v2"
+import (
+	"fmt"
+
+	"github.com/hashicorp/hcl/v2"
+)
 
 type RuleBlock struct {
 	block      *hcl.Block
@@ -35,21 +39,27 @@ func (blk *RuleBlock) initAttributes(gs scope) hcl.Diagnostics {
 
 	blk.scope = &nestedScope{outer: gs}
 
+	local := fmt.Sprintf("rule.%v", blk.block.DefRange)
+
 	for _, attr := range con.Attributes {
 		switch attr.Name {
 		case ruleTargetAttributeSchema.Name:
 			blk.Target = &String{attribute: attr}
 			attr := attribute{
-				set:      setDirect("target"),
-				fillable: blk.Target,
-				scope:    blk.scope,
+				name:         fmt.Sprintf("%v.target", local),
+				set:          setDirect("target"),
+				fillable:     blk.Target,
+				scope:        blk.scope,
+				dependencies: getDependencies(local, blk.Target.attribute.Expr),
 			}
 			blk.attributes = append(blk.attributes, attr)
 		case ruleCommandAttributeSchema.Name:
 			blk.Command = &StringArray{attribute: attr}
 			attr := attribute{
-				fillable: blk.Command,
-				scope:    blk.scope,
+				name:         fmt.Sprintf("%v.command", local),
+				fillable:     blk.Command,
+				scope:        blk.scope,
+				dependencies: getDependencies(local, blk.Command.attribute.Expr),
 			}
 			blk.attributes = append(blk.attributes, attr)
 		}

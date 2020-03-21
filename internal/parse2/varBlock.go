@@ -1,6 +1,10 @@
 package parse2
 
-import "github.com/hashicorp/hcl/v2"
+import (
+	"fmt"
+
+	"github.com/hashicorp/hcl/v2"
+)
 
 type varBlock struct {
 	block      *hcl.Block
@@ -13,10 +17,13 @@ func (blk *varBlock) initAttributes(gs scope) hcl.Diagnostics {
 	blk.attributes = make([]attribute, 0, len(attrs))
 
 	for name, attr := range attrs {
+		gen := generic{attribute: attr}
 		attr := attribute{
-			set:      setOnObject("var", name),
-			fillable: &generic{attribute: attr},
-			scope:    gs,
+			name:         fmt.Sprintf("var.%v", name),
+			set:          setOnObject("var", name),
+			fillable:     &gen,
+			scope:        gs,
+			dependencies: getDependencies("", gen.attribute.Expr),
 		}
 		blk.attributes = append(blk.attributes, attr)
 	}

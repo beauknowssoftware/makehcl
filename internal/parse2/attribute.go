@@ -1,6 +1,8 @@
 package parse2
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -66,9 +68,11 @@ func (s nestedScope) childContext(ctx *hcl.EvalContext) *hcl.EvalContext {
 }
 
 type attribute struct {
-	set      setter
-	scope    scope
-	fillable fillable
+	set          setter
+	scope        scope
+	fillable     fillable
+	name         string
+	dependencies []string
 }
 
 func (a attribute) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
@@ -83,4 +87,79 @@ func (a attribute) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
 	}
 
 	return diag
+}
+
+func getDependencies(local string, expr hcl.Expression) (result []string) {
+	for _, v := range expr.Variables() {
+		root := v.RootName()
+		switch root {
+		case "var":
+			spl := v.SimpleSplit()
+			name := spl.Rel[0].(hcl.TraverseAttr).Name
+			result = append(result, fmt.Sprintf("var.%v", name))
+		default:
+			result = append(result, fmt.Sprintf("%v.%v", local, root))
+		}
+	}
+
+	return
+}
+
+type attributeSorter struct {
+	attributes      []attribute
+	attributeLookup map[string]attribute
+	dependents      map[string][]string
+	sorted          []attribute
+	visited         map[string]bool
+	visiting        map[string]bool
+}
+
+func (s *attributeSorter) init() (roots []string) {
+	s.visited = make(map[string]bool)
+	s.visiting = make(map[string]bool)
+	s.attributeLookup = make(map[string]attribute)
+	s.dependents = make(map[string][]string)
+
+	for _, a := range s.attributes {
+		s.attributeLookup[a.name] = a
+
+		if len(a.dependencies) == 0 {
+			roots = append(roots, a.name)
+		}
+
+		for _, dep := range a.dependencies {
+			s.dependents[dep] = append(s.dependents[dep], a.name)
+		}
+	}
+
+	return
+}
+
+func (s *attributeSorter) visit(name string) {
+	if s.visited[name] {
+		return
+	}
+
+	if s.visiting[name] {
+		panic(fmt.Sprintf("attribute loopback on %v", name))
+	}
+
+	s.visiting[name] = true
+
+	s.sorted = append(s.sorted, s.attributeLookup[name])
+
+	for _, dep := range s.dependents[name] {
+		s.visit(dep)
+	}
+
+	s.visiting[name] = false
+	s.visited[name] = true
+}
+
+func (s *attributeSorter) sort() {
+	roots := s.init()
+
+	for _, a := range roots {
+		s.visit(a)
+	}
 }
