@@ -3,6 +3,7 @@ module github.com/beauknowssoftware/makehcl
 go 1.13
 
 require (
+	github.com/emicklei/dot v0.10.2
 	github.com/gobwas/glob v0.2.3
 	github.com/golangci/golangci-lint v1.24.0
 	github.com/google/go-cmp v0.4.0

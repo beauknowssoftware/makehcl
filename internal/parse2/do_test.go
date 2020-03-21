@@ -285,12 +285,12 @@ func TestDo(t *testing.T) {
 				var diag hcl.Diagnostics
 				definition, diag = parse2.Do(test.options)
 				if diff := cmp.Diff(test.error, diag.Error()); diff != "" {
-					t.Fatalf("mismatch (-want,+got):\n%s", diff)
+					t.Fatalf("error mismatch (-want,+got):\n%s", diff)
 				}
 			}
 
 			if diff := cmp.Diff(test.definition, definition, ignoreUnexported); diff != "" {
-				t.Fatalf("mismatch (-want,+got):\n%s", diff)
+				t.Fatalf("definition mismatch (-want,+got):\n%s", diff)
 			}
 		})
 	}
