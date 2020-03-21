@@ -76,8 +76,10 @@ func (p *Parser) enumerateImportBlocks(ctx *hcl.EvalContext) hcl.Diagnostics {
 func (p *Parser) enumerateAttributes() hcl.Diagnostics {
 	var result hcl.Diagnostics
 
+	gs := variableScope{}
+
 	for _, f := range p.Files {
-		diag := f.enumerateAttributes()
+		diag := f.enumerateAttributes(&gs)
 		if diag.HasErrors() {
 			result = result.Extend(diag)
 		}

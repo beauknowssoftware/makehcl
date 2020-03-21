@@ -8,6 +8,7 @@ type RuleBlock struct {
 	Target     *String
 	Command    *StringArray
 	attributes []attribute
+	scope      scope
 }
 
 var (
@@ -21,7 +22,7 @@ var (
 	}
 )
 
-func (blk *RuleBlock) initAttributes() hcl.Diagnostics {
+func (blk *RuleBlock) initAttributes(gs scope) hcl.Diagnostics {
 	con, result := blk.block.Body.Content(ruleSchema)
 
 	if con == nil {
@@ -32,15 +33,17 @@ func (blk *RuleBlock) initAttributes() hcl.Diagnostics {
 
 	blk.attributes = make([]attribute, 0, len(con.Attributes))
 
+	blk.scope = &nestedScope{outer: gs}
+
 	for _, attr := range con.Attributes {
 		switch attr.Name {
 		case ruleTargetAttributeSchema.Name:
 			blk.Target = &String{attribute: attr}
-			attr := attribute{fillable: blk.Target}
+			attr := attribute{name: "target", fillable: blk.Target, scope: blk.scope}
 			blk.attributes = append(blk.attributes, attr)
 		case ruleCommandAttributeSchema.Name:
 			blk.Command = &StringArray{attribute: attr}
-			attr := attribute{fillable: blk.Command}
+			attr := attribute{fillable: blk.Command, scope: blk.scope}
 			blk.attributes = append(blk.attributes, attr)
 		}
 	}

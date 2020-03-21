@@ -60,7 +60,7 @@ func (f *File) enumerateImportBlocks(ctx *hcl.EvalContext) (result hcl.Diagnosti
 	return
 }
 
-func (f *File) enumerateAttributes() (result hcl.Diagnostics) {
+func (f *File) enumerateAttributes(gs scope) (result hcl.Diagnostics) {
 	if f.unprocessedBody == nil {
 		return
 	}
@@ -79,7 +79,7 @@ func (f *File) enumerateAttributes() (result hcl.Diagnostics) {
 		rBlk := RuleBlock{block: blk}
 		f.RuleBlocks = append(f.RuleBlocks, &rBlk)
 
-		if diag := rBlk.initAttributes(); diag.HasErrors() {
+		if diag := rBlk.initAttributes(gs); diag.HasErrors() {
 			result = result.Extend(diag)
 		}
 
