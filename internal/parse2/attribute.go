@@ -5,9 +5,35 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+type setter func(map[string]cty.Value, cty.Value)
+
+func setDirect(name string) setter {
+	return func(vars map[string]cty.Value, val cty.Value) {
+		vars[name] = val
+	}
+}
+
+func setOnObject(object, property string) setter {
+	return func(vars map[string]cty.Value, val cty.Value) {
+		objVal, hasObject := vars[object]
+		if !hasObject {
+			objVal = cty.ObjectVal(make(map[string]cty.Value))
+			vars[object] = objVal
+		}
+
+		obj := objVal.AsValueMap()
+		if obj == nil {
+			obj = make(map[string]cty.Value)
+		}
+
+		obj[property] = val
+		vars[object] = cty.ObjectVal(obj)
+	}
+}
+
 type scope interface {
 	childContext(*hcl.EvalContext) *hcl.EvalContext
-	set(string, cty.Value)
+	set(setter, cty.Value)
 }
 
 type variableScope struct {
@@ -21,12 +47,12 @@ func (s variableScope) childContext(ctx *hcl.EvalContext) *hcl.EvalContext {
 	return ctx
 }
 
-func (s *variableScope) set(name string, val cty.Value) {
+func (s *variableScope) set(setter setter, val cty.Value) {
 	if s.variables == nil {
 		s.variables = make(map[string]cty.Value)
 	}
 
-	s.variables[name] = val
+	setter(s.variables, val)
 }
 
 type nestedScope struct {
@@ -40,7 +66,7 @@ func (s nestedScope) childContext(ctx *hcl.EvalContext) *hcl.EvalContext {
 }
 
 type attribute struct {
-	name     string
+	set      setter
 	scope    scope
 	fillable fillable
 }
@@ -52,8 +78,8 @@ func (a attribute) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
 
 	val, diag := a.fillable.fill(ctx)
 
-	if a.name != "" {
-		a.scope.set(a.name, val)
+	if a.set != nil {
+		a.scope.set(a.set, val)
 	}
 
 	return diag

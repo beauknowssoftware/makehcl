@@ -12,9 +12,11 @@ var (
 		},
 	}
 	ruleBlockHeaderSchema = hcl.BlockHeaderSchema{Type: "rule"}
-	ruleStageSchema       = &hcl.BodySchema{
+	varBlockHeaderSchema  = hcl.BlockHeaderSchema{Type: "var"}
+	attributeStageSchema  = &hcl.BodySchema{
 		Blocks: []hcl.BlockHeaderSchema{
 			ruleBlockHeaderSchema,
+			varBlockHeaderSchema,
 		},
 	}
 )
@@ -26,6 +28,7 @@ type File struct {
 	content         *hcl.BodyContent
 	ImportBlocks    []*ImportBlock
 	RuleBlocks      []*RuleBlock
+	varBlocks       []*varBlock
 	attributes      []attribute
 }
 
@@ -65,25 +68,33 @@ func (f *File) enumerateAttributes(gs scope) (result hcl.Diagnostics) {
 		return
 	}
 
-	f.content, f.unprocessedBody, result = f.unprocessedBody.PartialContent(ruleStageSchema)
+	f.content, f.unprocessedBody, result = f.unprocessedBody.PartialContent(attributeStageSchema)
 
 	if f.content == nil {
 		return
 	}
 
 	for _, blk := range f.content.Blocks {
-		if blk.Type != ruleBlockHeaderSchema.Type {
-			continue
+		switch blk.Type {
+		case ruleBlockHeaderSchema.Type:
+			rBlk := RuleBlock{block: blk}
+			f.RuleBlocks = append(f.RuleBlocks, &rBlk)
+
+			if diag := rBlk.initAttributes(gs); diag.HasErrors() {
+				result = result.Extend(diag)
+			}
+
+			f.attributes = append(f.attributes, rBlk.attributes...)
+		case varBlockHeaderSchema.Type:
+			vBlk := varBlock{block: blk}
+			f.varBlocks = append(f.varBlocks, &vBlk)
+
+			if diag := vBlk.initAttributes(gs); diag.HasErrors() {
+				result = result.Extend(diag)
+			}
+
+			f.attributes = append(f.attributes, vBlk.attributes...)
 		}
-
-		rBlk := RuleBlock{block: blk}
-		f.RuleBlocks = append(f.RuleBlocks, &rBlk)
-
-		if diag := rBlk.initAttributes(gs); diag.HasErrors() {
-			result = result.Extend(diag)
-		}
-
-		f.attributes = append(f.attributes, rBlk.attributes...)
 	}
 
 	return

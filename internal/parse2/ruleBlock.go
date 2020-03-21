@@ -40,7 +40,7 @@ func (blk *RuleBlock) initAttributes(gs scope) hcl.Diagnostics {
 		case ruleTargetAttributeSchema.Name:
 			blk.Target = &String{attribute: attr}
 			attr := attribute{
-				name:     "target",
+				set:      setDirect("target"),
 				fillable: blk.Target,
 				scope:    blk.scope,
 			}
