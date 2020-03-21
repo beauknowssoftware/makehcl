@@ -1,6 +1,8 @@
 package parse2
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 )
@@ -64,10 +66,68 @@ func (p *Parser) getBlocks(ctx *hcl.EvalContext) (result hcl.Diagnostics) {
 	return
 }
 
+type importCycleDetector struct {
+	visited  map[string]bool
+	visiting map[string]bool
+	files    map[string]*File
+}
+
+func (d importCycleDetector) findImportCycles(filename string) hcl.Diagnostics {
+	if d.visited[filename] {
+		return nil
+	}
+
+	var result hcl.Diagnostics
+
+	d.visiting[filename] = true
+
+	f := d.files[filename]
+	for _, imp := range f.ImportBlocks {
+		if imp.File == nil {
+			continue
+		}
+
+		if d.visiting[imp.File.Value] {
+			diag := hcl.Diagnostic{
+				Summary:     "Import cycle detected",
+				Detail:      fmt.Sprintf("Cycle occurred when importing %v", imp.File.Value),
+				Severity:    hcl.DiagError,
+				Subject:     &imp.File.attribute.Range,
+				Expression:  imp.File.attribute.Expr,
+				EvalContext: imp.File.ctx,
+			}
+
+			result = result.Append(&diag)
+		} else {
+			diag := d.findImportCycles(imp.File.Value)
+			result = result.Extend(diag)
+		}
+	}
+
+	d.visited[filename] = true
+	d.visiting[filename] = false
+
+	return result
+}
+
+func (p Parser) findImportCycles() (result hcl.Diagnostics) {
+	d := importCycleDetector{
+		visited:  make(map[string]bool),
+		visiting: make(map[string]bool),
+		files:    p.Files,
+	}
+
+	return d.findImportCycles(p.Options.Filename)
+}
+
 func (p *Parser) Parse() hcl.Diagnostics {
 	p.init()
 
 	if diag := p.getBlocks(nil); diag.HasErrors() {
+		return diag
+	}
+
+	if diag := p.findImportCycles(); diag.HasErrors() {
 		return diag
 	}
 

@@ -8,6 +8,7 @@ import (
 	"github.com/beauknowssoftware/makehcl/internal/parse2"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/hashicorp/hcl/v2"
 	"github.com/pkg/errors"
 )
 
@@ -52,6 +53,7 @@ func TestDo(t *testing.T) {
 		folder     string
 		options    parse2.Options
 		definition parse2.Definition
+		error      string
 	}{
 		"empty": {
 			folder: "testdata/empty",
@@ -85,6 +87,7 @@ func TestDo(t *testing.T) {
 		},
 		"import loop": {
 			folder: "testdata/import_loop",
+			error:  "import.hcl:2,3-20: Import cycle detected; Cycle occurred when importing make.hcl",
 			definition: parse2.Definition{
 				Files: map[string]*parse2.File{
 					"make.hcl": {
@@ -199,7 +202,18 @@ func TestDo(t *testing.T) {
 			popd := pushd(t, test.folder)
 			defer popd()
 
-			definition := do(t, test.options)
+			var definition parse2.Definition
+
+			if test.error == "" {
+				definition = do(t, test.options)
+			} else {
+				var diag hcl.Diagnostics
+				definition, diag = parse2.Do(test.options)
+				if diff := cmp.Diff(test.error, diag.Error()); diff != "" {
+					t.Fatalf("mismatch (-want,+got):\n%s", diff)
+				}
+			}
+
 			if diff := cmp.Diff(test.definition, definition, ignoreUnexported); diff != "" {
 				t.Fatalf("mismatch (-want,+got):\n%s", diff)
 			}

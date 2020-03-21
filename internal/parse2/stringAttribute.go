@@ -11,6 +11,7 @@ type StringAttribute struct {
 	Value     string
 	attribute *hcl.Attribute
 	val       cty.Value
+	ctx       *hcl.EvalContext
 }
 
 func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (*StringAttribute, hcl.Diagnostics) {
@@ -37,6 +38,7 @@ func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (*StringAttri
 		Value:     val.AsString(),
 		attribute: attr,
 		val:       val,
+		ctx:       ctx,
 	}
 
 	return &sa, nil
