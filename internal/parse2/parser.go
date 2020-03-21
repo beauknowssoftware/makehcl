@@ -12,8 +12,9 @@ const (
 )
 
 type Parser struct {
-	Options   Options
-	hclParser *hclparse.Parser
+	Options    Options
+	hclParser  *hclparse.Parser
+	attributes []attribute
 	Definition
 }
 
@@ -67,6 +68,34 @@ func (p *Parser) enumerateImportBlocks(ctx *hcl.EvalContext) hcl.Diagnostics {
 		}
 
 		unprocessedFiles = append(unprocessedFiles, newFilenames...)
+	}
+
+	return result
+}
+
+func (p *Parser) enumerateAttributes() hcl.Diagnostics {
+	var result hcl.Diagnostics
+
+	for _, f := range p.Files {
+		diag := f.enumerateAttributes()
+		if diag.HasErrors() {
+			result = result.Extend(diag)
+		}
+
+		p.attributes = append(p.attributes, f.attributes...)
+	}
+
+	return result
+}
+
+func (p *Parser) fillAttributes(ctx *hcl.EvalContext) hcl.Diagnostics {
+	var result hcl.Diagnostics
+
+	for _, a := range p.attributes {
+		diag := a.fill(ctx)
+		if diag.HasErrors() {
+			result = result.Extend(diag)
+		}
 	}
 
 	return result
@@ -138,6 +167,14 @@ func (p *Parser) Parse() hcl.Diagnostics {
 	}
 
 	if diag := p.findImportCycles(); diag.HasErrors() {
+		return diag
+	}
+
+	if diag := p.enumerateAttributes(); diag.HasErrors() {
+		return diag
+	}
+
+	if diag := p.fillAttributes(nil); diag.HasErrors() {
 		return diag
 	}
 

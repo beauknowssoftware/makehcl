@@ -11,6 +11,12 @@ var (
 			importBlockHeaderSchema,
 		},
 	}
+	ruleBlockHeaderSchema = hcl.BlockHeaderSchema{Type: "rule"}
+	ruleStageSchema       = &hcl.BodySchema{
+		Blocks: []hcl.BlockHeaderSchema{
+			ruleBlockHeaderSchema,
+		},
+	}
 )
 
 type File struct {
@@ -19,6 +25,8 @@ type File struct {
 	unprocessedBody hcl.Body
 	content         *hcl.BodyContent
 	ImportBlocks    []*ImportBlock
+	RuleBlocks      []*RuleBlock
+	attributes      []attribute
 }
 
 func (f File) HasContents() bool {
@@ -47,6 +55,35 @@ func (f *File) enumerateImportBlocks(ctx *hcl.EvalContext) (result hcl.Diagnosti
 		if diag := iBlk.initAttributes(ctx); diag.HasErrors() {
 			result = result.Extend(diag)
 		}
+	}
+
+	return
+}
+
+func (f *File) enumerateAttributes() (result hcl.Diagnostics) {
+	if f.unprocessedBody == nil {
+		return
+	}
+
+	f.content, f.unprocessedBody, result = f.unprocessedBody.PartialContent(ruleStageSchema)
+
+	if f.content == nil {
+		return
+	}
+
+	for _, blk := range f.content.Blocks {
+		if blk.Type != ruleBlockHeaderSchema.Type {
+			continue
+		}
+
+		rBlk := RuleBlock{block: blk}
+		f.RuleBlocks = append(f.RuleBlocks, &rBlk)
+
+		if diag := rBlk.initAttributes(); diag.HasErrors() {
+			result = result.Extend(diag)
+		}
+
+		f.attributes = append(f.attributes, rBlk.attributes...)
 	}
 
 	return

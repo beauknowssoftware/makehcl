@@ -1,6 +1,7 @@
 package parse2_test
 
 import (
+	"fmt"
 	"os"
 	"runtime/debug"
 	"testing"
@@ -106,6 +107,26 @@ func TestDo(t *testing.T) {
 				Files: map[string]*parse2.File{
 					"make.hcl": {
 						Name: "make.hcl",
+					},
+				},
+			},
+		},
+		"rules": {
+			folder: "testdata/rules",
+			definition: parse2.Definition{
+				Files: map[string]*parse2.File{
+					"make.hcl": {
+						Name: "make.hcl",
+						RuleBlocks: []*parse2.RuleBlock{
+							{
+								Target: &parse2.StringAttribute{
+									Value: "test.txt",
+								},
+								Command: &parse2.StringArrayAttribute{
+									Value: []string{"touch test.txt"},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -269,11 +290,15 @@ func TestDo(t *testing.T) {
 		parse2.Definition{},
 		parse2.File{},
 		parse2.ImportBlock{},
+		parse2.RuleBlock{},
 		parse2.StringAttribute{},
+		parse2.StringArrayAttribute{},
 	)
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
+			fmt.Println(name)
+
 			popd := pushd(t, test.folder)
 			defer popd()
 

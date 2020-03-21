@@ -8,14 +8,11 @@ type ImportBlock struct {
 	File    *StringAttribute
 }
 
-const (
-	importFileAttributeName = "file"
-)
-
 var (
-	importSchema = &hcl.BodySchema{
+	importFileAttributeSchema = hcl.AttributeSchema{Name: "file", Required: true}
+	importSchema              = &hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
-			{Name: importFileAttributeName, Required: true},
+			importFileAttributeSchema,
 		},
 	}
 )
@@ -30,7 +27,7 @@ func (blk *ImportBlock) initAttributes(ctx *hcl.EvalContext) hcl.Diagnostics {
 	blk.content = con
 
 	for _, attr := range con.Attributes {
-		if attr.Name == importFileAttributeName {
+		if attr.Name == importFileAttributeSchema.Name {
 			if diag := blk.setFile(attr, ctx); diag.HasErrors() {
 				result = result.Extend(diag)
 			}

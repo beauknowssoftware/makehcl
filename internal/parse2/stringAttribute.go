@@ -14,10 +14,19 @@ type StringAttribute struct {
 	ctx       *hcl.EvalContext
 }
 
-func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (*StringAttribute, hcl.Diagnostics) {
-	val, diag := attr.Expr.Value(ctx)
+func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (sa *StringAttribute, diag hcl.Diagnostics) {
+	sa = &StringAttribute{
+		attribute: attr,
+	}
+	diag = sa.fill(ctx)
+
+	return
+}
+
+func (a *StringAttribute) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
+	val, diag := a.attribute.Expr.Value(ctx)
 	if diag.HasErrors() {
-		return nil, diag
+		return diag
 	}
 
 	t := val.Type()
@@ -26,20 +35,17 @@ func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (*StringAttri
 			Summary:     "invalid type",
 			Detail:      fmt.Sprintf("expected string, got %v", t.FriendlyName()),
 			Severity:    hcl.DiagError,
-			Subject:     &attr.Range,
-			Expression:  attr.Expr,
+			Subject:     &a.attribute.Range,
+			Expression:  a.attribute.Expr,
 			EvalContext: ctx,
 		}
 
-		return nil, hcl.Diagnostics{&diag}
+		return hcl.Diagnostics{&diag}
 	}
 
-	sa := StringAttribute{
-		Value:     val.AsString(),
-		attribute: attr,
-		val:       val,
-		ctx:       ctx,
-	}
+	a.Value = val.AsString()
+	a.val = val
+	a.ctx = ctx
 
-	return &sa, nil
+	return nil
 }
