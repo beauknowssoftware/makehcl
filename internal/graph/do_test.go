@@ -84,6 +84,17 @@ func TestDo(t *testing.T) {
 			},
 			expected: "digraph {n1 [label=\"make.hcl\"];}",
 		},
+		"multiple file imports": {
+			folder: "testdata/multiple_file_imports",
+			options: graph.Options{
+				GraphType: graph.ImportGraph,
+			},
+			expected: "digraph {" +
+				"n1 [label=\"import.hcl\"];" +
+				"n2 [label=\"make.hcl\"];" +
+				"n2 -> n1;" +
+				"}",
+		},
 	}
 
 	for name, test := range tests {
