@@ -169,6 +169,29 @@ func TestDo(t *testing.T) {
 				},
 			},
 		},
+		"default goal": {
+			folder: "testdata/default_goal",
+			definition: parse2.Definition{
+				Files: map[string]*parse2.File{
+					"make.hcl": {
+						DefaultGoal: &parse2.StringArray{
+							Value: []string{"test.txt"},
+						},
+						Name: "make.hcl",
+						RuleBlocks: []*parse2.RuleBlock{
+							{
+								Target: &parse2.String{
+									Value: "test.txt",
+								},
+								Command: &parse2.StringArray{
+									Value: []string{"touch test.txt"},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		"rules": {
 			folder: "testdata/rules",
 			definition: parse2.Definition{

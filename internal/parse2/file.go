@@ -16,8 +16,12 @@ var (
 		Type:       "command",
 		LabelNames: []string{"name"},
 	}
-	varBlockHeaderSchema = hcl.BlockHeaderSchema{Type: "var"}
-	attributeStageSchema = &hcl.BodySchema{
+	varBlockHeaderSchema       = hcl.BlockHeaderSchema{Type: "var"}
+	defaultGoalAttributeSchema = hcl.AttributeSchema{Name: "default_goal"}
+	attributeStageSchema       = &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			defaultGoalAttributeSchema,
+		},
 		Blocks: []hcl.BlockHeaderSchema{
 			commandBlockHeaderSchema,
 			ruleBlockHeaderSchema,
@@ -28,9 +32,11 @@ var (
 
 type File struct {
 	Name            string
+	DefaultGoal     *StringArray
 	hclFile         *hcl.File
 	unprocessedBody hcl.Body
 	content         *hcl.BodyContent
+	scope           scope
 	ImportBlocks    []*ImportBlock
 	RuleBlocks      []*RuleBlock
 	CommandBlocks   []*CommandBlock
@@ -80,6 +86,20 @@ func (f *File) enumerateAttributes(gs scope) hcl.Diagnostics {
 
 	if f.content == nil {
 		return result
+	}
+
+	f.scope = gs
+
+	for _, attr := range f.content.Attributes {
+		if attr.Name == defaultGoalAttributeSchema.Name {
+			f.DefaultGoal = &StringArray{attribute: attr}
+			attr := attribute{
+				fillable:     f.DefaultGoal,
+				scope:        f.scope,
+				dependencies: getDependencies("", f.DefaultGoal.attribute.Expr),
+			}
+			f.attributes = append(f.attributes, attr)
+		}
 	}
 
 	for _, blk := range f.content.Blocks {
