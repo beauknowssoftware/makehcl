@@ -18,15 +18,15 @@ func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (sa *String, 
 	sa = &String{
 		attribute: attr,
 	}
-	diag = sa.fill(ctx)
+	_, diag = sa.fill(ctx)
 
 	return
 }
 
-func (a *String) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
+func (a *String) fill(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnostics) {
 	val, diag := a.attribute.Expr.Value(ctx)
 	if diag.HasErrors() {
-		return diag
+		return a.val, diag
 	}
 
 	t := val.Type()
@@ -40,12 +40,12 @@ func (a *String) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
 			EvalContext: ctx,
 		}
 
-		return hcl.Diagnostics{&diag}
+		return a.val, hcl.Diagnostics{&diag}
 	}
 
 	a.Value = val.AsString()
 	a.val = val
 	a.ctx = ctx
 
-	return nil
+	return a.val, nil
 }

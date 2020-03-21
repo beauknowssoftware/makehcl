@@ -36,11 +36,11 @@ func (blk *RuleBlock) initAttributes() hcl.Diagnostics {
 		switch attr.Name {
 		case ruleTargetAttributeSchema.Name:
 			blk.Target = &String{attribute: attr}
-			attr := attribute{blk.Target}
+			attr := attribute{fillable: blk.Target}
 			blk.attributes = append(blk.attributes, attr)
 		case ruleCommandAttributeSchema.Name:
 			blk.Command = &StringArray{attribute: attr}
-			attr := attribute{blk.Command}
+			attr := attribute{fillable: blk.Command}
 			blk.attributes = append(blk.attributes, attr)
 		}
 	}

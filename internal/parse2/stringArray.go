@@ -18,10 +18,10 @@ func isStringType(_ cty.Value, val cty.Value) (stop bool) {
 	return val.Type() == cty.String
 }
 
-func (a *StringArray) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
+func (a *StringArray) fill(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnostics) {
 	val, diag := a.attribute.Expr.Value(ctx)
 	if diag.HasErrors() {
-		return diag
+		return a.val, diag
 	}
 
 	t := val.Type()
@@ -32,7 +32,7 @@ func (a *StringArray) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
 		a.val = val
 		a.ctx = ctx
 
-		return nil
+		return a.val, nil
 	}
 
 	if !val.CanIterateElements() || val.ForEachElement(isStringType) {
@@ -45,7 +45,7 @@ func (a *StringArray) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
 			EvalContext: ctx,
 		}
 
-		return hcl.Diagnostics{&diag}
+		return a.val, hcl.Diagnostics{&diag}
 	}
 
 	slc := val.AsValueSlice()
@@ -57,5 +57,5 @@ func (a *StringArray) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
 		a.Value = append(a.Value, i.AsString())
 	}
 
-	return nil
+	return a.val, nil
 }
