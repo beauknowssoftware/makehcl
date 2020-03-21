@@ -4,6 +4,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 )
 
-type attribute interface {
+type fillable interface {
 	fill(*hcl.EvalContext) hcl.Diagnostics
 }

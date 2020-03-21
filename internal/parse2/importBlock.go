@@ -5,7 +5,7 @@ import "github.com/hashicorp/hcl/v2"
 type ImportBlock struct {
 	block   *hcl.Block
 	content *hcl.BodyContent
-	File    *StringAttribute
+	File    *String
 }
 
 var (

@@ -14,7 +14,7 @@ const (
 type Parser struct {
 	Options    Options
 	hclParser  *hclparse.Parser
-	attributes []attribute
+	attributes []fillable
 	Definition
 }
 

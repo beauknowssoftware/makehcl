@@ -7,7 +7,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-type StringArrayAttribute struct {
+type StringArray struct {
 	Value     []string
 	attribute *hcl.Attribute
 	val       cty.Value
@@ -18,7 +18,7 @@ func isStringType(_ cty.Value, val cty.Value) (stop bool) {
 	return val.Type() == cty.String
 }
 
-func (a *StringArrayAttribute) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
+func (a *StringArray) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
 	val, diag := a.attribute.Expr.Value(ctx)
 	if diag.HasErrors() {
 		return diag

@@ -5,9 +5,9 @@ import "github.com/hashicorp/hcl/v2"
 type RuleBlock struct {
 	block      *hcl.Block
 	content    *hcl.BodyContent
-	Target     *StringAttribute
-	Command    *StringArrayAttribute
-	attributes []attribute
+	Target     *String
+	Command    *StringArray
+	attributes []fillable
 }
 
 var (
@@ -30,15 +30,15 @@ func (blk *RuleBlock) initAttributes() hcl.Diagnostics {
 
 	blk.content = con
 
-	blk.attributes = make([]attribute, 0, len(con.Attributes))
+	blk.attributes = make([]fillable, 0, len(con.Attributes))
 
 	for _, attr := range con.Attributes {
 		switch attr.Name {
 		case ruleTargetAttributeSchema.Name:
-			blk.Target = &StringAttribute{attribute: attr}
+			blk.Target = &String{attribute: attr}
 			blk.attributes = append(blk.attributes, blk.Target)
 		case ruleCommandAttributeSchema.Name:
-			blk.Command = &StringArrayAttribute{attribute: attr}
+			blk.Command = &StringArray{attribute: attr}
 			blk.attributes = append(blk.attributes, blk.Command)
 		}
 	}

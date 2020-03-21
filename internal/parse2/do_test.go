@@ -89,7 +89,7 @@ func TestDo(t *testing.T) {
 						Name: "make.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "import.hcl",
 								},
 							},
@@ -119,10 +119,10 @@ func TestDo(t *testing.T) {
 						Name: "make.hcl",
 						RuleBlocks: []*parse2.RuleBlock{
 							{
-								Target: &parse2.StringAttribute{
+								Target: &parse2.String{
 									Value: "test.txt",
 								},
-								Command: &parse2.StringArrayAttribute{
+								Command: &parse2.StringArray{
 									Value: []string{"touch test.txt"},
 								},
 							},
@@ -139,7 +139,7 @@ func TestDo(t *testing.T) {
 						Name: "make.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "import.hcl",
 								},
 							},
@@ -162,7 +162,7 @@ func TestDo(t *testing.T) {
 						Name: "make.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "import.hcl",
 								},
 							},
@@ -172,7 +172,7 @@ func TestDo(t *testing.T) {
 						Name: "import.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "make.hcl",
 								},
 							},
@@ -190,7 +190,7 @@ func TestDo(t *testing.T) {
 						Name: "make.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "import.hcl",
 								},
 							},
@@ -200,7 +200,7 @@ func TestDo(t *testing.T) {
 						Name: "import.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "make.hcl",
 								},
 							},
@@ -217,7 +217,7 @@ func TestDo(t *testing.T) {
 						Name: "make.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "import.hcl",
 								},
 							},
@@ -227,7 +227,7 @@ func TestDo(t *testing.T) {
 						Name: "import.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "nested.hcl",
 								},
 							},
@@ -247,12 +247,12 @@ func TestDo(t *testing.T) {
 						Name: "make.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "import.hcl",
 								},
 							},
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "diamond.hcl",
 								},
 							},
@@ -262,7 +262,7 @@ func TestDo(t *testing.T) {
 						Name: "diamond.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "nested.hcl",
 								},
 							},
@@ -272,7 +272,7 @@ func TestDo(t *testing.T) {
 						Name: "import.hcl",
 						ImportBlocks: []*parse2.ImportBlock{
 							{
-								File: &parse2.StringAttribute{
+								File: &parse2.String{
 									Value: "nested.hcl",
 								},
 							},
@@ -291,8 +291,8 @@ func TestDo(t *testing.T) {
 		parse2.File{},
 		parse2.ImportBlock{},
 		parse2.RuleBlock{},
-		parse2.StringAttribute{},
-		parse2.StringArrayAttribute{},
+		parse2.String{},
+		parse2.StringArray{},
 	)
 
 	for name, test := range tests {

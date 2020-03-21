@@ -7,15 +7,15 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-type StringAttribute struct {
+type String struct {
 	Value     string
 	attribute *hcl.Attribute
 	val       cty.Value
 	ctx       *hcl.EvalContext
 }
 
-func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (sa *StringAttribute, diag hcl.Diagnostics) {
-	sa = &StringAttribute{
+func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (sa *String, diag hcl.Diagnostics) {
+	sa = &String{
 		attribute: attr,
 	}
 	diag = sa.fill(ctx)
@@ -23,7 +23,7 @@ func newStringAttribute(attr *hcl.Attribute, ctx *hcl.EvalContext) (sa *StringAt
 	return
 }
 
-func (a *StringAttribute) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
+func (a *String) fill(ctx *hcl.EvalContext) hcl.Diagnostics {
 	val, diag := a.attribute.Expr.Value(ctx)
 	if diag.HasErrors() {
 		return diag
