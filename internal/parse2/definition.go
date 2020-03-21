@@ -17,6 +17,10 @@ func (d *Definition) addFile(name string, f *hcl.File) *File {
 		Name:    name,
 		hclFile: f,
 	}
+	if f != nil {
+		newFile.unprocessedBody = f.Body
+	}
+
 	d.Files[name] = newFile
 
 	return newFile

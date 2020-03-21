@@ -30,16 +30,12 @@ func (p *Parser) readFile(filename string) (*File, hcl.Diagnostics) {
 
 	f := p.addFile(filename, hf)
 
-	if diag.HasErrors() {
-		return f, diag
-	}
-
-	diag = f.enumerateContents()
-
 	return f, diag
 }
 
-func (p *Parser) getBlocks(ctx *hcl.EvalContext) (result hcl.Diagnostics) {
+func (p *Parser) enumerateImportBlocks(ctx *hcl.EvalContext) hcl.Diagnostics {
+	var result hcl.Diagnostics
+
 	unprocessedFiles := []string{p.Options.Filename}
 
 	for len(unprocessedFiles) > 0 {
@@ -55,15 +51,25 @@ func (p *Parser) getBlocks(ctx *hcl.EvalContext) (result hcl.Diagnostics) {
 			result = result.Extend(diag)
 		}
 
-		newFilenames, diag := f.getImportFilenames(ctx)
+		diag = f.enumerateImportBlocks(ctx)
 		if diag.HasErrors() {
 			result = result.Extend(diag)
+		}
+
+		newFilenames := make([]string, 0, len(f.ImportBlocks))
+
+		for _, imp := range f.ImportBlocks {
+			if imp.File == nil {
+				continue
+			}
+
+			newFilenames = append(newFilenames, imp.File.Value)
 		}
 
 		unprocessedFiles = append(unprocessedFiles, newFilenames...)
 	}
 
-	return
+	return result
 }
 
 type importCycleDetector struct {
@@ -123,8 +129,12 @@ func (p Parser) findImportCycles() (result hcl.Diagnostics) {
 func (p *Parser) Parse() hcl.Diagnostics {
 	p.init()
 
-	if diag := p.getBlocks(nil); diag.HasErrors() {
+	if diag := p.enumerateImportBlocks(nil); diag.HasErrors() {
 		return diag
+	}
+
+	if p.Options.StopAfterStage == StopAfterImports {
+		return nil
 	}
 
 	if diag := p.findImportCycles(); diag.HasErrors() {

@@ -130,6 +130,36 @@ func TestDo(t *testing.T) {
 				},
 			},
 		},
+		"import only": {
+			folder: "testdata/import_only",
+			options: parse2.Options{
+				StopAfterStage: parse2.StopAfterImports,
+			},
+			definition: parse2.Definition{
+				Files: map[string]*parse2.File{
+					"make.hcl": {
+						Name: "make.hcl",
+						ImportBlocks: []*parse2.ImportBlock{
+							{
+								File: &parse2.StringAttribute{
+									Value: "import.hcl",
+								},
+							},
+						},
+					},
+					"import.hcl": {
+						Name: "import.hcl",
+						ImportBlocks: []*parse2.ImportBlock{
+							{
+								File: &parse2.StringAttribute{
+									Value: "make.hcl",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		"import loop": {
 			folder: "testdata/import_loop",
 			error:  "import.hcl:2,3-20: Import cycle detected; Cycle occurred when importing make.hcl",
