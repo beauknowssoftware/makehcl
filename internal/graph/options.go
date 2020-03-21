@@ -11,6 +11,7 @@ type Options struct {
 }
 
 type DoOptions struct {
-	Filename string
+	Filename           string
+	IgnoreParserErrors bool
 	Options
 }

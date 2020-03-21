@@ -12,7 +12,7 @@ func Do(o DoOptions) (*Graph, hcl.Diagnostics, error) {
 	}
 
 	d, diag := parse2.Do(po)
-	if diag.HasErrors() {
+	if diag.HasErrors() && !o.IgnoreParserErrors {
 		return nil, diag, nil
 	}
 

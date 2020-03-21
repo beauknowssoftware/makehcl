@@ -21,6 +21,10 @@ type File struct {
 	ImportBlocks    []*ImportBlock
 }
 
+func (f File) HasContents() bool {
+	return f.hclFile != nil
+}
+
 func (f *File) enumerateImportBlocks(ctx *hcl.EvalContext) (result hcl.Diagnostics) {
 	if f.unprocessedBody == nil {
 		return

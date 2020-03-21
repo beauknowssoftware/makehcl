@@ -10,7 +10,7 @@ import (
 func constructImportGraph(d *parse2.Definition) *Graph {
 	g := dot.NewGraph(dot.Directed)
 
-	nodeMap := make(map[string]*dot.Node)
+	nodeMap := make(map[string]dot.Node)
 
 	filenames := make([]string, 0, len(d.Files))
 	for _, f := range d.Files {
@@ -21,7 +21,13 @@ func constructImportGraph(d *parse2.Definition) *Graph {
 
 	for _, name := range filenames {
 		n := g.Node(name)
-		nodeMap[name] = &n
+
+		f := d.Files[name]
+		if !f.HasContents() {
+			n.Attr("color", "red")
+		}
+
+		nodeMap[name] = n
 	}
 
 	for _, name := range filenames {
@@ -46,9 +52,7 @@ func constructImportGraph(d *parse2.Definition) *Graph {
 			}
 
 			n2 := nodeMap[imp.File.Value]
-			if n2 != nil {
-				g.Edge(*n1, *n2)
-			}
+			g.Edge(n1, n2)
 		}
 	}
 

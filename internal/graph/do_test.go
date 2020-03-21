@@ -72,10 +72,11 @@ func failableDo(t *testing.T, o graph.DoOptions) (*graph.Graph, error) {
 
 func TestDo(t *testing.T) {
 	tests := map[string]struct {
-		folder   string
-		options  graph.Options
-		expected string
-		error    string
+		folder             string
+		ignoreParserErrors bool
+		options            graph.Options
+		expected           string
+		error              string
 	}{
 		"single file imports": {
 			folder: "testdata/single_file_imports",
@@ -83,6 +84,18 @@ func TestDo(t *testing.T) {
 				GraphType: graph.ImportGraph,
 			},
 			expected: "digraph {n1 [label=\"make.hcl\"];}",
+		},
+		"missing import": {
+			folder:             "testdata/missing_import",
+			ignoreParserErrors: true,
+			options: graph.Options{
+				GraphType: graph.ImportGraph,
+			},
+			expected: "digraph {" +
+				"n1 [color=\"red\",label=\"import.hcl\"];" +
+				"n2 [label=\"make.hcl\"];" +
+				"n2 -> n1;" +
+				"}",
 		},
 		"multiple file imports": {
 			folder: "testdata/multiple_file_imports",
@@ -104,7 +117,10 @@ func TestDo(t *testing.T) {
 
 			var actual string
 
-			o := graph.DoOptions{Options: test.options}
+			o := graph.DoOptions{
+				Options:            test.options,
+				IgnoreParserErrors: test.ignoreParserErrors,
+			}
 
 			if test.error == "" {
 				actual = do(t, o).String()
