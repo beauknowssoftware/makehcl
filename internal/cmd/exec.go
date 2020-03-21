@@ -45,6 +45,16 @@ func Exec() error {
 		return err
 	}
 
+	var graph GraphCommand
+	_, err = p.AddCommand("graph",
+		"Print a graph",
+		"The graph command parses the make hcl file and prints a dot formatted graph",
+		&graph)
+
+	if err != nil {
+		return err
+	}
+
 	_, err = p.Parse()
 
 	return err

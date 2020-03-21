@@ -1,9 +1,9 @@
 package graph
 
-type Type int
+type Type string
 
 const (
-	ImportGraph Type = iota
+	ImportGraph Type = "import"
 )
 
 type Options struct {

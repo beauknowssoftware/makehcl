@@ -32,6 +32,10 @@ import {
   file = "build/install.hcl"
 }
 
+import {
+  file = "build/graph.hcl"
+}
+
 command clean {
   command = "git clean -f -fdX"
 }
