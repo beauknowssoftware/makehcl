@@ -12,6 +12,7 @@ require (
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pkg/errors v0.9.1
+	github.com/windler/dotgraph v0.0.0-20181029120057-04e185ef91e0
 	github.com/zclconf/go-cty v1.3.1
 	github.com/zclconf/go-cty-yaml v1.0.1
 	golang.org/x/tools v0.0.0-20200204192400-7124308813f3
