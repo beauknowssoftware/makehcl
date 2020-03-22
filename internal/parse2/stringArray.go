@@ -14,7 +14,7 @@ type StringArray struct {
 	ctx       *hcl.EvalContext
 }
 
-func isStringType(_ cty.Value, val cty.Value) (stop bool) {
+func isStringType(key cty.Value, val cty.Value) (stop bool) {
 	return val.Type() == cty.String
 }
 
@@ -35,7 +35,7 @@ func (a *StringArray) fill(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnostics) {
 		return a.val, nil
 	}
 
-	if !val.CanIterateElements() || val.ForEachElement(isStringType) {
+	if !val.CanIterateElements() || !val.ForEachElement(isStringType) {
 		diag := hcl.Diagnostic{
 			Summary:     "invalid type",
 			Detail:      fmt.Sprintf("expected iterable strings, got %v", t.FriendlyName()),

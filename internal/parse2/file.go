@@ -94,6 +94,7 @@ func (f *File) enumerateAttributes(gs scope) hcl.Diagnostics {
 		if attr.Name == defaultGoalAttributeSchema.Name {
 			f.DefaultGoal = &StringArray{attribute: attr}
 			attr := attribute{
+				name:         "default_goal",
 				fillable:     f.DefaultGoal,
 				scope:        f.scope,
 				dependencies: getDependencies("", f.DefaultGoal.attribute.Expr),

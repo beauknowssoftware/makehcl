@@ -1,6 +1,5 @@
-default_goal = "test.txt"
+default_goal = var.a
 
-rule {
-  target = "test.txt"
-  command = "touch ${target}"
+var {
+  a = "test.txt"
 }

@@ -108,7 +108,6 @@ func getDependencies(local string, expr hcl.Expression) (result []string) {
 type attributeSorter struct {
 	attributes      []attribute
 	attributeLookup map[string]attribute
-	dependents      map[string][]string
 	sorted          []attribute
 	visited         map[string]bool
 	visiting        map[string]bool
@@ -118,17 +117,23 @@ func (s *attributeSorter) init() (roots []string) {
 	s.visited = make(map[string]bool)
 	s.visiting = make(map[string]bool)
 	s.attributeLookup = make(map[string]attribute)
-	s.dependents = make(map[string][]string)
+
+	dependents := make(map[string][]string)
 
 	for _, a := range s.attributes {
+		fmt.Println(a.name)
 		s.attributeLookup[a.name] = a
 
-		if len(a.dependencies) == 0 {
-			roots = append(roots, a.name)
-		}
-
 		for _, dep := range a.dependencies {
-			s.dependents[dep] = append(s.dependents[dep], a.name)
+			fmt.Printf("%v dep %v\n", a.name, dep)
+			dependents[dep] = append(dependents[dep], a.name)
+		}
+	}
+
+	for _, a := range s.attributes {
+		deps := dependents[a.name]
+		if len(deps) == 0 {
+			roots = append(roots, a.name)
 		}
 	}
 
@@ -146,14 +151,14 @@ func (s *attributeSorter) visit(name string) {
 
 	s.visiting[name] = true
 
-	s.sorted = append(s.sorted, s.attributeLookup[name])
-
-	for _, dep := range s.dependents[name] {
+	a := s.attributeLookup[name]
+	for _, dep := range a.dependencies {
 		s.visit(dep)
 	}
 
 	s.visiting[name] = false
 	s.visited[name] = true
+	s.sorted = append(s.sorted, a)
 }
 
 func (s *attributeSorter) sort() {
